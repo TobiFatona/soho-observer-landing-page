@@ -1,0 +1,280 @@
+import { useRef, useState } from 'react'
+import { motion, AnimatePresence, useInView } from 'framer-motion'
+import SectionLabel from '@/components/ui/SectionLabel'
+import FadeInView from '@/components/motion/FadeInView'
+import { supabase } from '@/lib/supabase'
+
+const EASE = [0.22, 1, 0.36, 1]
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
+const TIMEOUT_MS = 10_000
+const PHONE_RE = /^\+[1-9]\d{7,14}$/
+
+const inputClass =
+  'w-full font-sans text-sm bg-white border border-card rounded-full px-5 py-3.5 text-charcoal placeholder-gray-warm/50 focus:outline-none focus:border-gold transition-colors duration-300'
+
+const TYPEWRITER_CHARS = 'Observing.'.split('')
+
+const fieldErrorClass = 'font-sans text-[0.68rem] text-[#CC0000] mt-1 ml-1'
+
+export default function DownloadCTA({ onUnlock }) {
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [email, setEmail] = useState(() => sessionStorage.getItem('soho_email') || '')
+  const [phone, setPhone] = useState('')
+  const [submitted, setSubmitted] = useState(
+    () => sessionStorage.getItem('soho_submitted') === 'true'
+  )
+  const [loading, setLoading] = useState(false)
+  const [fieldErrors, setFieldErrors] = useState({})
+
+  const observingRef = useRef(null)
+  const observingInView = useInView(observingRef, { once: true })
+
+  function clearError(field) {
+    if (fieldErrors[field]) {
+      setFieldErrors(prev => {
+        const next = { ...prev }
+        delete next[field]
+        return next
+      })
+    }
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+    const errors = {}
+
+    if (!EMAIL_RE.test(email)) errors.email = 'Please enter a valid email address.'
+    if (!PHONE_RE.test(phone)) errors.phone = 'Use international format, e.g. +12125550123'
+
+    if (Object.keys(errors).length) {
+      setFieldErrors(errors)
+      return
+    }
+
+    setFieldErrors({})
+    setLoading(true)
+
+    let dbError
+    try {
+      const timeout = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('timeout')), TIMEOUT_MS)
+      )
+      const result = await Promise.race([
+        supabase.from('waitlist').insert({ first_name: firstName, last_name: lastName, email, phone }),
+        timeout,
+      ])
+      dbError = result.error
+    } catch {
+      setLoading(false)
+      setFieldErrors({ form: 'Request timed out. Please check your connection and try again.' })
+      return
+    }
+    setLoading(false)
+
+    if (dbError) {
+      if (dbError.code === '23505') {
+        if (dbError.details?.includes('phone')) {
+          setFieldErrors({ phone: "This number is already on the list — we'll be in touch." })
+        } else {
+          setFieldErrors({ email: "This email is already on the list — we'll be in touch." })
+        }
+      } else {
+        setFieldErrors({ form: 'Something went wrong. Please try again.' })
+      }
+      return
+    }
+
+    sessionStorage.setItem('soho_submitted', 'true')
+    sessionStorage.setItem('soho_email', email)
+    setSubmitted(true)
+    onUnlock?.()
+  }
+
+  return (
+    <section
+      id="waitlist"
+      className="relative py-20 lg:py-section px-[8vw] bg-parchment text-center overflow-hidden"
+    >
+      {/* Radial gold ambient glow — background atmosphere */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            'radial-gradient(ellipse 70% 55% at 50% 105%, rgba(196,169,110,0.13) 0%, transparent 70%)',
+        }}
+      />
+
+      {/* Thin gold rule at top of section */}
+      <div className="relative flex items-center justify-center gap-5 mb-12">
+        <span className="block flex-1 max-w-[80px] h-px bg-gold/30" />
+        <SectionLabel>Join the Beta</SectionLabel>
+        <span className="block flex-1 max-w-[80px] h-px bg-gold/30" />
+      </div>
+
+      {/* Headline */}
+      <div className="relative mb-12">
+        <div className="overflow-hidden">
+          <motion.h2
+            className="font-display italic text-charcoal font-light"
+            style={{ fontSize: 'clamp(38px, 7vw, 96px)', lineHeight: 0.92, paddingBottom: '0.06em' }}
+            initial={{ opacity: 0, y: 72 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1, ease: EASE }}
+          >
+            Start
+          </motion.h2>
+        </div>
+        {/* Typewriter reveal for "Observing." */}
+        <div ref={observingRef} className="overflow-visible" style={{ paddingBottom: '0.1em' }}>
+          <h2
+            className="font-display italic text-gold font-light"
+            style={{ fontSize: 'clamp(38px, 7vw, 96px)', lineHeight: 0.92 }}
+          >
+            {TYPEWRITER_CHARS.map((char, i) => (
+              <motion.span
+                key={i}
+                initial={{ opacity: 0 }}
+                animate={observingInView ? { opacity: 1 } : { opacity: 0 }}
+                transition={{ duration: 0.04, delay: 0.2 + i * 0.07, ease: 'linear' }}
+              >
+                {char}
+              </motion.span>
+            ))}
+          </h2>
+        </div>
+      </div>
+
+      <FadeInView delay={0.3} className="relative max-w-[520px] mx-auto">
+        <AnimatePresence mode="wait">
+          {submitted ? (
+            <motion.div
+              key="confirmation"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: EASE }}
+              className="flex flex-col items-center gap-4"
+            >
+              <div className="inline-flex items-center gap-3 py-3 px-6 rounded-full bg-charcoal">
+                <span className="w-1.5 h-1.5 rounded-full bg-gold flex-shrink-0 animate-pulse" />
+                <span className="font-sans text-sm text-parchment">
+                  You're on the list — scroll up to view the preview.
+                </span>
+              </div>
+              <p className="font-sans text-xs text-gray-warm/70">
+                We'll send your early access details to {email}
+              </p>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="form"
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.35, ease: EASE }}
+            >
+              <p className="font-sans text-sm text-gray-warm leading-relaxed mb-8 max-w-[400px] mx-auto">
+                Beta access is limited. Join the waitlist and be among the first to identify
+                and shop any look — before Soho Observer launches on the App Store.
+              </p>
+
+              <form className="flex flex-col gap-3 max-w-sm mx-auto" onSubmit={handleSubmit}>
+                <div className="grid grid-cols-2 gap-3">
+                  <input
+                    type="text"
+                    required
+                    value={firstName}
+                    onChange={e => setFirstName(e.target.value)}
+                    placeholder="First name"
+                    className={inputClass}
+                  />
+                  <input
+                    type="text"
+                    required
+                    value={lastName}
+                    onChange={e => setLastName(e.target.value)}
+                    placeholder="Last name"
+                    className={inputClass}
+                  />
+                </div>
+
+                <div>
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={e => {
+                      setEmail(e.target.value)
+                      clearError('email')
+                    }}
+                    placeholder="Email address"
+                    className={`${inputClass} ${fieldErrors.email ? 'border-[#CC0000]' : ''}`}
+                  />
+                  {fieldErrors.email && <p className={fieldErrorClass}>{fieldErrors.email}</p>}
+                </div>
+
+                <div>
+                  <input
+                    type="tel"
+                    required
+                    value={phone}
+                    onChange={e => {
+                      setPhone(e.target.value)
+                      clearError('phone')
+                    }}
+                    placeholder="Phone number e.g. +12125550123"
+                    className={`${inputClass} ${fieldErrors.phone ? 'border-[#CC0000]' : ''}`}
+                  />
+                  {fieldErrors.phone && <p className={fieldErrorClass}>{fieldErrors.phone}</p>}
+                </div>
+
+                {fieldErrors.form && (
+                  <p className="font-sans text-[0.68rem] text-[#CC0000] text-center">{fieldErrors.form}</p>
+                )}
+
+                {/* Magic trace CTA button */}
+                <div className="relative mt-2">
+                  {/* Ambient bloom — wide radial pulse */}
+                  <motion.div
+                    className="absolute -inset-5 rounded-full pointer-events-none"
+                    style={{
+                      background: 'radial-gradient(ellipse at 50% 50%, rgba(196,169,110,0.6) 0%, rgba(196,169,110,0.28) 45%, transparent 68%)',
+                      filter: 'blur(22px)',
+                    }}
+                    animate={{ opacity: [0.55, 0.92, 0.55], scale: [1, 1.06, 1] }}
+                    transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
+                  />
+                  {/* Box-shadow glow ring that breathes in sync */}
+                  <motion.div
+                    className="absolute inset-0 rounded-full pointer-events-none"
+                    style={{ boxShadow: '0 0 12px 3px rgba(196,169,110,0.5), 0 0 28px 8px rgba(196,169,110,0.2)' }}
+                    animate={{ opacity: [0.6, 1, 0.6] }}
+                    transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }}
+                  />
+                  {/* Spinning border pill */}
+                  <div
+                    className="relative rounded-full overflow-hidden"
+                    style={{ padding: '2px', background: 'rgba(196,169,110,0.38)' }}
+                  >
+                    <div className="magic-trace absolute inset-0 pointer-events-none" aria-hidden="true" />
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="relative z-10 w-full font-sans text-sm font-medium bg-charcoal text-parchment rounded-full px-7 py-3.5 hover:bg-gold hover:text-charcoal transition-colors duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                      {loading ? 'Joining…' : 'Join the Waitlist — Unlock Preview'}
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <p className="label-editorial mt-10 text-gray-warm">
+          Coming soon to the App Store &nbsp;·&nbsp; iOS only
+        </p>
+      </FadeInView>
+    </section>
+  )
+}

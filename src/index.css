@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@layer base {
+  html {
+    background-color: #F5F2EF;
+    color: #1A1A1A;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+  }
+
+  ::selection {
+    background-color: #C4A96E;
+    color: #F5F2EF;
+  }
+
+  body {
+    text-size-adjust: 100%;
+  }
+}
+
+@layer components {
+  .label-editorial {
+    @apply font-display-sc text-gray-warm tracking-editorial text-[0.65rem] uppercase;
+  }
+
+  .gold-rule {
+    @apply block h-px bg-gold w-8 flex-shrink-0;
+  }
+
+  .btn-pill {
+    @apply inline-flex items-center gap-2 px-8 py-3 rounded-full border border-gold
+           text-charcoal font-sans text-[0.7rem] tracking-widest uppercase
+           transition-all duration-300 hover:bg-gold hover:text-parchment cursor-pointer;
+  }
+
+  .btn-appstore {
+    @apply inline-flex items-center gap-3 px-6 py-4 bg-charcoal text-parchment
+           font-sans text-sm tracking-wide rounded-xl
+           transition-all duration-300 hover:bg-gold hover:text-charcoal cursor-pointer;
+  }
+}
+
+/* ── Magic trace spinning border ─────────────────────────────────────── */
+@property --magic-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes magic-spin {
+  from { --magic-angle: 0deg; }
+  to   { --magic-angle: 360deg; }
+}
+
+.magic-trace {
+  animation: magic-spin 2.6s linear infinite;
+  background: conic-gradient(
+    from var(--magic-angle) at 50% 50%,
+    transparent            0%,
+    transparent            52%,
+    rgba(196,169,110,0.35) 64%,
+    rgba(210,180,110,0.72) 75%,
+    rgba(255,246,195,0.95) 83%,
+    rgba(255,255,255,1)    87%,
+    rgba(255,246,195,0.92) 91%,
+    rgba(210,180,110,0.55) 95%,
+    rgba(196,169,110,0.18) 98%,
+    transparent            100%
+  );
+}
