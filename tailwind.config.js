@@ -5,17 +5,24 @@ export default {
     extend: {
       colors: {
         parchment: '#F5F2EF',
-        gold: '#C4A96E',
-        'gold-muted': '#D4BC8A',
+        gold: {
+          DEFAULT: '#C4A96E',
+          muted:   '#D4BC8A',
+          50:      '#FAF8F2',
+          100:     '#F4EFE0',
+          200:     '#E8DDC0',
+          300:     '#D9C698',
+          500:     '#BE9351',
+        },
         charcoal: '#1A1A1A',
         'gray-warm': '#8B8B8B',
         card: '#E8E5E1',
         'card-dark': '#2A2520',
       },
       fontFamily: {
-        display: ['"Cormorant Garamond"', 'Georgia', 'serif'],
-        'display-sc': ['"Cormorant SC"', 'Georgia', 'serif'],
-        sans: ['"DM Sans"', 'system-ui', 'sans-serif'],
+        display: ['"Inter"', 'system-ui', 'sans-serif'],
+        'display-sc': ['"Inter"', 'system-ui', 'sans-serif'],
+        sans: ['"Inter"', 'system-ui', 'sans-serif'],
       },
       fontSize: {
         label: ['0.65rem', { lineHeight: '1', letterSpacing: '0.25em' }],

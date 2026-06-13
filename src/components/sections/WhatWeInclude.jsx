@@ -30,7 +30,11 @@ const features = [
 
 export default function WhatWeInclude() {
   return (
-    <section id="features" className="py-16 lg:py-section px-[8vw] bg-white">
+    <section
+      id="features"
+      className="py-16 lg:py-section px-[8vw]"
+      style={{ background: 'linear-gradient(to bottom, #F5F2EF 0%, #F5F2EF 80%, #ffffff 100%)' }}
+    >
 
       {/* ── Mobile layout ── */}
       <div className="lg:hidden">
@@ -40,7 +44,7 @@ export default function WhatWeInclude() {
 
         <FadeInView className="mb-10 text-center">
           <h2
-            className="font-display italic text-charcoal leading-tight"
+            className="font-sans font-semibold tracking-tight text-charcoal leading-tight"
             style={{ fontSize: 'clamp(30px, 7vw, 56px)' }}
           >
             What Soho Observer<br />includes.
@@ -56,25 +60,25 @@ export default function WhatWeInclude() {
           {features.map((f, i) => (
             <motion.div
               key={f.number}
-              className="snap-center flex-shrink-0 w-[88vw] bg-parchment rounded-2xl p-6"
+              className="snap-center flex-shrink-0 w-[88vw] bg-white rounded-2xl p-6"
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, ease: EASE, delay: i * 0.1 }}
             >
               <span
-                className="font-display-sc text-gold tracking-editorial block mb-3"
+                className="font-sans font-medium text-gold tracking-widest uppercase block mb-3"
                 style={{ fontSize: '0.6rem' }}
               >
                 {f.number}
               </span>
               <h3
-                className="font-display italic text-charcoal mb-2 leading-tight"
+                className="font-sans font-semibold text-charcoal mb-2 leading-tight"
                 style={{ fontSize: 'clamp(19px, 5vw, 26px)' }}
               >
                 {f.title}
               </h3>
-              <span className="block w-8 h-px bg-gold mb-4" />
+              <span className="block w-8 h-px bg-gold-500 mb-4" />
               <p className="font-sans text-sm text-gray-warm leading-relaxed">{f.body}</p>
             </motion.div>
           ))}
@@ -111,7 +115,7 @@ export default function WhatWeInclude() {
 
           <FadeInView className="mb-12">
             <h2
-              className="font-display italic text-charcoal leading-tight text-left"
+              className="font-sans font-semibold tracking-tight text-charcoal leading-tight text-left"
               style={{ fontSize: 'clamp(30px, 4vw, 56px)' }}
             >
               What Soho Observer<br />includes.
@@ -122,21 +126,21 @@ export default function WhatWeInclude() {
             {features.map((f, i) => (
               <motion.div
                 key={f.number}
-                className="flex gap-6 py-7 border-t border-card"
+                className="flex gap-6 py-7 border-t border-gold-200"
                 initial={{ opacity: 0, x: 20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, ease: EASE, delay: i * 0.1 }}
               >
                 <span
-                  className="font-display-sc text-gold tracking-editorial pt-0.5 flex-shrink-0"
+                  className="font-sans font-medium text-gold tracking-widest uppercase pt-0.5 flex-shrink-0"
                   style={{ fontSize: '0.6rem' }}
                 >
                   {f.number}
                 </span>
                 <div>
                   <h3
-                    className="font-display italic text-charcoal mb-2 leading-tight"
+                    className="font-sans font-semibold text-charcoal mb-2 leading-tight"
                     style={{ fontSize: 'clamp(18px, 2.2vw, 28px)' }}
                   >
                     {f.title}
@@ -145,7 +149,7 @@ export default function WhatWeInclude() {
                 </div>
               </motion.div>
             ))}
-            <div className="border-t border-card" />
+            <div className="border-t border-gold-200" />
           </div>
 
           <FadeInView delay={0.4} className="mt-6">

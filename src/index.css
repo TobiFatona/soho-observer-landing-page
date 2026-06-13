@@ -33,11 +33,15 @@
 
 @layer components {
   .label-editorial {
-    @apply font-display-sc text-gray-warm tracking-editorial text-[0.65rem] uppercase;
+    @apply font-sans font-medium text-gray-warm tracking-widest text-[0.65rem] uppercase;
   }
 
   .gold-rule {
-    @apply block h-px bg-gold w-8 flex-shrink-0;
+    display: block;
+    height: 1px;
+    width: 4rem;
+    flex-shrink: 0;
+    background-color: #BE9351;
   }
 
   .btn-pill {

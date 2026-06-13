@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import SectionLabel from '@/components/ui/SectionLabel'
 import FadeInView from '@/components/motion/FadeInView'
 
 const EASE = [0.22, 1, 0.36, 1]
@@ -46,13 +47,18 @@ const reasons = [
 export default function WhyChoose() {
   return (
     <section
-      className="py-16 lg:py-section px-[8vw]"
-      style={{ background: 'linear-gradient(to bottom, #F5F2EF 0%, #F5F2EF 80%, #ffffff 100%)' }}
+      id="why"
+      className="pt-12 pb-16 lg:pt-20 lg:pb-section px-[8vw]"
+      style={{ background: 'linear-gradient(to bottom, #ffffff 0%, #ffffff 75%, #F5F2EF 100%)' }}
     >
+      <FadeInView className="flex justify-center mb-4">
+        <SectionLabel>Why Choose</SectionLabel>
+      </FadeInView>
+
       <FadeInView className="text-center mb-4">
         <h2
-          className="font-display italic text-charcoal leading-tight"
-          style={{ fontSize: 'clamp(32px, 5vw, 68px)' }}
+          className="font-sans font-semibold tracking-tight text-charcoal leading-tight"
+          style={{ fontSize: 'clamp(30px, 4vw, 56px)' }}
         >
           Why choose Soho Observer?
         </h2>
@@ -69,7 +75,7 @@ export default function WhyChoose() {
         {reasons.map((r, i) => (
           <motion.div
             key={r.title}
-            className="snap-center flex-shrink-0 w-[88vw] bg-white rounded-2xl p-6 flex flex-col"
+            className="snap-center flex-shrink-0 w-[88vw] bg-parchment rounded-2xl p-6 flex flex-col"
             style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -78,12 +84,12 @@ export default function WhyChoose() {
           >
             <div
               className="w-12 h-12 rounded-xl flex items-center justify-center text-charcoal mb-6 flex-shrink-0"
-              style={{ background: '#F5F2EF' }}
+              style={{ background: '#F4EFE0' }}
             >
               {r.icon}
             </div>
             <h3
-              className="font-display italic text-charcoal mb-3 leading-tight"
+              className="font-sans font-semibold text-charcoal mb-3 leading-tight"
               style={{ fontSize: 'clamp(18px, 2vw, 24px)' }}
             >
               {r.title}
@@ -98,7 +104,7 @@ export default function WhyChoose() {
         {reasons.map((r, i) => (
           <motion.div
             key={r.title}
-            className="bg-white rounded-2xl p-6 lg:p-8 flex flex-col"
+            className="bg-parchment rounded-2xl p-6 lg:p-8 flex flex-col"
             style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -107,12 +113,12 @@ export default function WhyChoose() {
           >
             <div
               className="w-12 h-12 rounded-xl flex items-center justify-center text-charcoal mb-6 flex-shrink-0"
-              style={{ background: '#F5F2EF' }}
+              style={{ background: '#F4EFE0' }}
             >
               {r.icon}
             </div>
             <h3
-              className="font-display italic text-charcoal mb-3 leading-tight"
+              className="font-sans font-semibold text-charcoal mb-3 leading-tight"
               style={{ fontSize: 'clamp(18px, 2vw, 24px)' }}
             >
               {r.title}

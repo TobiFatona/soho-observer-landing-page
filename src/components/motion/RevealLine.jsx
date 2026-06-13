@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 export default function RevealLine({ className = '', vertical = false }) {
   return (
     <motion.span
-      className={`block bg-gold ${vertical ? 'w-px' : 'h-px'} ${className}`}
+      className={`block bg-gold-500 ${vertical ? 'w-px' : 'h-px'} ${className}`}
       initial={{ [vertical ? 'scaleY' : 'scaleX']: 0 }}
       whileInView={{ [vertical ? 'scaleY' : 'scaleX']: 1 }}
       viewport={{ once: true, margin: '-40px' }}

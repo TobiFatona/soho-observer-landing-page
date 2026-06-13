@@ -39,7 +39,7 @@ function StepCard({ step, i = 0, animated = false, cardClass = '' }) {
   return (
     <motion.div
       className={`rounded-2xl overflow-hidden bg-white ${cardClass}`}
-      style={{ boxShadow: '0 2px 18px rgba(0,0,0,0.07)', border: '1px solid #E8E5E1' }}
+      style={{ boxShadow: '0 2px 18px rgba(0,0,0,0.07)', border: '1px solid #E8DDC0' }}
       {...motionProps}
     >
       <div className="relative h-52 bg-[#1a1a1a] overflow-hidden">
@@ -54,16 +54,16 @@ function StepCard({ step, i = 0, animated = false, cardClass = '' }) {
         />
       </div>
       <div className="p-6 lg:p-7">
-        <span className="font-display-sc text-gold tracking-editorial" style={{ fontSize: '0.6rem' }}>
+        <span className="font-sans font-medium text-gold tracking-widest uppercase" style={{ fontSize: '0.6rem' }}>
           {step.number}
         </span>
         <h3
-          className="font-display italic text-charcoal mt-2 mb-3 leading-tight"
+          className="font-sans font-semibold text-charcoal mt-2 mb-3 leading-tight"
           style={{ fontSize: 'clamp(19px, 2vw, 26px)' }}
         >
           {step.title}
         </h3>
-        <span className="block w-8 h-px bg-gold mb-4" />
+        <span className="block w-8 h-px bg-gold-500 mb-4" />
         <p className="font-sans text-sm text-gray-warm leading-relaxed">{step.body}</p>
       </div>
     </motion.div>
@@ -96,14 +96,14 @@ export default function HowItWorks() {
       className="py-16 lg:py-section px-[8vw]"
       style={{ background: 'linear-gradient(to bottom, #ffffff 0%, #ffffff 78%, #F5F2EF 100%)' }}
     >
-      <FadeInView className="flex justify-center mb-16">
+      <FadeInView className="flex justify-center mb-4">
         <SectionLabel>How It Works</SectionLabel>
       </FadeInView>
 
       <FadeInView className="text-center mb-14">
         <h2
-          className="font-display italic text-charcoal leading-tight"
-          style={{ fontSize: 'clamp(32px, 5vw, 64px)' }}
+          className="font-sans font-semibold tracking-tight text-charcoal leading-tight"
+          style={{ fontSize: 'clamp(30px, 4vw, 56px)' }}
         >
           The intelligence<br />behind every scan.
         </h2>
@@ -142,7 +142,7 @@ export default function HowItWorks() {
               style={{
                 width: i === active ? 20 : 6,
                 height: 6,
-                background: i === active ? '#C4A96E' : '#C4C0BB',
+                background: i === active ? '#BE9351' : '#D9C698',
               }}
             />
           </button>

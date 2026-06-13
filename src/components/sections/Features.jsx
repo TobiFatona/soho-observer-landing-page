@@ -26,7 +26,7 @@ export default function Features() {
               >
                 {/* Ghost number */}
                 <span
-                  className="absolute font-display text-gold pointer-events-none select-none leading-none"
+                  className="absolute font-sans text-gold pointer-events-none select-none leading-none"
                   style={{
                     fontSize: 'clamp(100px, 14vw, 180px)',
                     opacity: 0.07,
@@ -43,7 +43,7 @@ export default function Features() {
                   {f.number}
                 </span>
 
-                <h2 className={`font-display italic text-charcoal mb-4 ${i === 2 ? 'text-right' : ''}`}
+                <h2 className={`font-sans font-semibold tracking-tight text-charcoal mb-4 ${i === 2 ? 'text-right' : ''}`}
                   style={{ fontSize: 'clamp(36px, 5vw, 68px)' }}
                 >
                   {f.label}

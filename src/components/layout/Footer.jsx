@@ -9,9 +9,7 @@ const footerLinks = {
     { label: 'Download', href: '#' },
   ],
   Company: [
-    { label: 'About', href: '#' },
     { label: 'Press', href: '#' },
-    { label: 'Blog', href: '#' },
     { label: 'Contact', href: '#' },
   ],
   Legal: [
@@ -75,7 +73,7 @@ export default function Footer() {
         </div>
 
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8">
-          <p className="font-sans text-xs text-gray-warm">© 2025 Soho Observer. All rights reserved.</p>
+          <p className="font-sans text-xs text-gray-warm">© 2026 Soho Observer. All rights reserved.</p>
           <p className="font-sans text-xs text-white/25 max-w-sm text-center sm:text-right leading-relaxed">
             AI-powered identification. Results may vary. Not affiliated with any featured brands.
           </p>

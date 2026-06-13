@@ -15,7 +15,7 @@ export default function StyleCard({ name, description, gradient, tall = false, c
             {name}
           </span>
         </div>
-        <p className="font-display-sc text-parchment/60 text-[0.6rem] tracking-wider pl-3.5">
+        <p className="font-sans text-parchment/60 text-[0.6rem] tracking-wider pl-3.5">
           {description}
         </p>
       </div>

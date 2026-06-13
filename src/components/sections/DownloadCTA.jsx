@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence, useInView } from 'framer-motion'
 import SectionLabel from '@/components/ui/SectionLabel'
 import FadeInView from '@/components/motion/FadeInView'
@@ -18,6 +18,9 @@ const TYPEWRITER_CHARS = 'Observing.'.split('')
 const fieldErrorClass = 'font-sans text-[0.68rem] text-[#CC0000] mt-1 ml-1'
 
 export default function DownloadCTA({ onUnlock }) {
+  const [mode, setMode] = useState('join') // 'join' | 'login'
+
+  // Join form state
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState(() => sessionStorage.getItem('soho_email') || '')
@@ -27,6 +30,17 @@ export default function DownloadCTA({ onUnlock }) {
   )
   const [loading, setLoading] = useState(false)
   const [fieldErrors, setFieldErrors] = useState({})
+
+  // Login form state
+  const [loginEmail, setLoginEmail] = useState('')
+  const [loginError, setLoginError] = useState('')
+  const [loginLoading, setLoginLoading] = useState(false)
+
+  useEffect(() => {
+    const handler = () => setMode('login')
+    window.addEventListener('soho:switch-to-login', handler)
+    return () => window.removeEventListener('soho:switch-to-login', handler)
+  }, [])
 
   const observingRef = useRef(null)
   const observingInView = useInView(observingRef, { once: true })
@@ -75,7 +89,8 @@ export default function DownloadCTA({ onUnlock }) {
 
     if (dbError) {
       if (dbError.code === '23505') {
-        if (dbError.details?.includes('phone')) {
+        const details = dbError.details || dbError.message || ''
+        if (details.toLowerCase().includes('phone')) {
           setFieldErrors({ phone: "This number is already on the list — we'll be in touch." })
         } else {
           setFieldErrors({ email: "This email is already on the list — we'll be in touch." })
@@ -92,12 +107,54 @@ export default function DownloadCTA({ onUnlock }) {
     onUnlock?.()
   }
 
+  async function handleLogin(e) {
+    e.preventDefault()
+    if (!EMAIL_RE.test(loginEmail)) {
+      setLoginError('Please enter a valid email address.')
+      return
+    }
+    setLoginError('')
+    setLoginLoading(true)
+
+    // Use the same INSERT mechanism that already works for sign-up.
+    // If the email is already in the waitlist, Supabase returns error 23505 on the email column.
+    // That conflict IS the verification — no SELECT permission needed.
+    const dummyPhone = `+9${Date.now()}`
+    const { error } = await supabase
+      .from('waitlist')
+      .insert({ email: loginEmail, first_name: '_', last_name: '_', phone: dummyPhone })
+
+    if (error?.code === '23505') {
+      const details = (error.details || error.message || '').toLowerCase()
+      if (details.includes('email')) {
+        sessionStorage.setItem('soho_submitted', 'true')
+        sessionStorage.setItem('soho_email', loginEmail)
+        setEmail(loginEmail)
+        setSubmitted(true)
+        onUnlock?.()
+        setLoginLoading(false)
+        return
+      }
+    }
+
+    if (!error) {
+      // Email was not in the waitlist — the INSERT succeeded, so clean up the test row
+      await supabase.from('waitlist').delete().eq('phone', dummyPhone)
+      setLoginError("We couldn't find that email on the waitlist.")
+      setLoginLoading(false)
+      return
+    }
+
+    setLoginError('Something went wrong. Please try again.')
+    setLoginLoading(false)
+  }
+
   return (
     <section
       id="waitlist"
       className="relative py-20 lg:py-section px-[8vw] bg-parchment text-center overflow-hidden"
     >
-      {/* Radial gold ambient glow — background atmosphere */}
+      {/* Radial gold ambient glow */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
@@ -117,20 +174,18 @@ export default function DownloadCTA({ onUnlock }) {
       <div className="relative mb-12">
         <div className="overflow-hidden">
           <motion.h2
-            className="font-display italic text-charcoal font-light"
+            className="font-sans font-semibold tracking-tight text-charcoal"
             style={{ fontSize: 'clamp(38px, 7vw, 96px)', lineHeight: 0.92, paddingBottom: '0.06em' }}
             initial={{ opacity: 0, y: 72 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            animate={observingInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 72 }}
             transition={{ duration: 1, ease: EASE }}
           >
             Start
           </motion.h2>
         </div>
-        {/* Typewriter reveal for "Observing." */}
         <div ref={observingRef} className="overflow-visible" style={{ paddingBottom: '0.1em' }}>
           <h2
-            className="font-display italic text-gold font-light"
+            className="font-sans font-semibold italic tracking-tight text-gold"
             style={{ fontSize: 'clamp(38px, 7vw, 96px)', lineHeight: 0.92 }}
           >
             {TYPEWRITER_CHARS.map((char, i) => (
@@ -164,9 +219,76 @@ export default function DownloadCTA({ onUnlock }) {
                 </span>
               </div>
               <p className="font-sans text-xs text-gray-warm/70">
-                We'll send your early access details to {email}
+                We'll send your early access details to {email || loginEmail}
               </p>
             </motion.div>
+
+          ) : mode === 'login' ? (
+            <motion.div
+              key="login"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.35, ease: EASE }}
+            >
+              <p className="font-sans text-sm text-gray-warm leading-relaxed mb-8 max-w-[400px] mx-auto">
+                Already on the list? Enter your email to log back in and access the preview.
+              </p>
+
+              <form className="flex flex-col gap-3 max-w-sm mx-auto" onSubmit={handleLogin}>
+                <div>
+                  <input
+                    type="email"
+                    required
+                    value={loginEmail}
+                    onChange={e => { setLoginEmail(e.target.value); setLoginError('') }}
+                    placeholder="Your email address"
+                    className={`${inputClass} ${loginError ? 'border-[#CC0000]' : ''}`}
+                  />
+                  {loginError && <p className={fieldErrorClass}>{loginError}</p>}
+                </div>
+
+                {/* Magic trace CTA button */}
+                <div className="relative mt-2">
+                  <motion.div
+                    className="absolute -inset-5 rounded-full pointer-events-none"
+                    style={{
+                      background: 'radial-gradient(ellipse at 50% 50%, rgba(196,169,110,0.6) 0%, rgba(196,169,110,0.28) 45%, transparent 68%)',
+                      filter: 'blur(22px)',
+                    }}
+                    animate={{ opacity: [0.55, 0.92, 0.55], scale: [1, 1.06, 1] }}
+                    transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
+                  />
+                  <motion.div
+                    className="absolute inset-0 rounded-full pointer-events-none"
+                    style={{ boxShadow: '0 0 12px 3px rgba(196,169,110,0.5), 0 0 28px 8px rgba(196,169,110,0.2)' }}
+                    animate={{ opacity: [0.6, 1, 0.6] }}
+                    transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }}
+                  />
+                  <div
+                    className="relative rounded-full overflow-hidden"
+                    style={{ padding: '2px', background: 'rgba(196,169,110,0.38)' }}
+                  >
+                    <div className="magic-trace absolute inset-0 pointer-events-none" aria-hidden="true" />
+                    <button
+                      type="submit"
+                      disabled={loginLoading}
+                      className="relative z-10 w-full font-sans text-sm font-medium bg-charcoal text-parchment rounded-full px-7 py-3.5 hover:bg-gold hover:text-charcoal transition-colors duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                      {loginLoading ? 'Checking…' : 'Log in — Unlock Preview'}
+                    </button>
+                  </div>
+                </div>
+              </form>
+
+              <button
+                onClick={() => { setMode('join'); setLoginError('') }}
+                className="mt-6 font-sans text-[0.7rem] text-gray-warm/60 hover:text-gray-warm transition-colors duration-200"
+              >
+                Join the waitlist instead
+              </button>
+            </motion.div>
+
           ) : (
             <motion.div
               key="form"
@@ -234,7 +356,6 @@ export default function DownloadCTA({ onUnlock }) {
 
                 {/* Magic trace CTA button */}
                 <div className="relative mt-2">
-                  {/* Ambient bloom — wide radial pulse */}
                   <motion.div
                     className="absolute -inset-5 rounded-full pointer-events-none"
                     style={{
@@ -244,14 +365,12 @@ export default function DownloadCTA({ onUnlock }) {
                     animate={{ opacity: [0.55, 0.92, 0.55], scale: [1, 1.06, 1] }}
                     transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
                   />
-                  {/* Box-shadow glow ring that breathes in sync */}
                   <motion.div
                     className="absolute inset-0 rounded-full pointer-events-none"
                     style={{ boxShadow: '0 0 12px 3px rgba(196,169,110,0.5), 0 0 28px 8px rgba(196,169,110,0.2)' }}
                     animate={{ opacity: [0.6, 1, 0.6] }}
                     transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }}
                   />
-                  {/* Spinning border pill */}
                   <div
                     className="relative rounded-full overflow-hidden"
                     style={{ padding: '2px', background: 'rgba(196,169,110,0.38)' }}
@@ -266,6 +385,15 @@ export default function DownloadCTA({ onUnlock }) {
                     </button>
                   </div>
                 </div>
+
+                {/* Login toggle */}
+                <button
+                  type="button"
+                  onClick={() => { setMode('login'); setFieldErrors({}) }}
+                  className="mt-1 font-sans text-[0.7rem] text-gray-warm/60 hover:text-gray-warm transition-colors duration-200"
+                >
+                  Already on the list? Log back in
+                </button>
               </form>
             </motion.div>
           )}

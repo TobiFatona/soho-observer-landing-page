@@ -32,7 +32,7 @@ const categories = [
     faqs: [
       {
         q: 'Is Soho Observer free to download?',
-        a: 'Yes — the app is free to download and use. A premium subscription unlocks unlimited observations, advanced wardrobe intelligence, and priority matching across all price points.',
+        a: 'Yes — the app is free to download. A premium subscription is required to fully access the app, including AI-powered observations, wardrobe intelligence, and price matching across all price points.',
       },
       {
         q: 'What will premium cost?',
@@ -76,14 +76,14 @@ function FAQItem({ item }) {
   const [open, setOpen] = useState(false)
 
   return (
-    <div className="border-t border-card">
+    <div className="border-t border-gold-200">
       <button
         onClick={() => setOpen(v => !v)}
         className="w-full flex items-center justify-between gap-6 py-5 text-left group"
         aria-expanded={open}
       >
         <span
-          className="font-display italic text-charcoal group-hover:text-gold transition-colors duration-300"
+          className="font-sans font-semibold italic text-charcoal group-hover:text-gold transition-colors duration-300"
           style={{ fontSize: 'clamp(16px, 1.6vw, 22px)' }}
         >
           {item.q}
@@ -132,8 +132,8 @@ export default function FAQ() {
 
       <FadeInView className="text-center mb-16">
         <h2
-          className="font-display italic leading-tight"
-          style={{ fontSize: 'clamp(32px, 5vw, 64px)' }}
+          className="font-sans font-semibold tracking-tight leading-tight"
+          style={{ fontSize: 'clamp(30px, 4vw, 56px)' }}
         >
           <span className="text-charcoal">Frequently asked </span>
           <span className="text-gray-warm">questions.</span>
@@ -155,7 +155,7 @@ export default function FAQ() {
                 className={`flex-shrink-0 font-sans text-xs px-4 py-2 rounded-full border transition-colors duration-200 ${
                   i === activeCategory
                     ? 'bg-charcoal text-parchment border-charcoal'
-                    : 'bg-transparent text-gray-warm border-card hover:text-charcoal'
+                    : 'bg-transparent text-gray-warm border-gold-200 hover:text-charcoal'
                 }`}
               >
                 {cat.label}
@@ -172,7 +172,7 @@ export default function FAQ() {
                 className={`text-left py-2.5 pl-3 font-sans text-sm border-l-2 transition-all duration-200 ${
                   i === activeCategory
                     ? 'text-charcoal border-charcoal font-medium'
-                    : 'text-gray-warm border-transparent hover:text-charcoal hover:border-card'
+                    : 'text-gray-warm border-transparent hover:text-charcoal hover:border-gold-200'
                 }`}
               >
                 {cat.label}
@@ -194,7 +194,7 @@ export default function FAQ() {
               {categories[activeCategory].faqs.map((item) => (
                 <FAQItem key={item.q} item={item} />
               ))}
-              <div className="border-t border-card" />
+              <div className="border-t border-gold-200" />
             </motion.div>
           </AnimatePresence>
         </div>

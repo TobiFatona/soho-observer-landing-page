@@ -5,19 +5,20 @@ import PhoneMockup from '@/components/ui/PhoneMockup'
 import FadeInView from '@/components/motion/FadeInView'
 
 const EASE = [0.22, 1, 0.36, 1]
-const COUNT = 6
+const COUNT = 7
 const ANGLE_STEP = 360 / COUNT
 const RADIUS = 310
 const PHONE_W = 202
 const PHONE_H = 418
 
 const screens = [
-  { src: '/images/app-home-v2.png', alt: 'Home', label: 'Home' },
-  { src: '/images/observe-ui.png', alt: 'Observe', label: 'Observe' },
-  { src: '/images/camera-ui.png', alt: 'Camera', label: 'Camera' },
-  { src: '/images/analyzing.png', alt: 'Analysing', label: 'Analysing' },
-  { src: '/images/archive-looks.png', alt: 'Saved looks', label: 'Archive' },
-  { src: '/images/archive-wardrobe.png', alt: 'Wardrobe', label: 'Wardrobe' },
+  { id: 'home', src: '/images/app-home-v2.png', alt: 'Home', label: 'Home' },
+  { id: 'observe', src: '/images/observe-ui.png', alt: 'Observe', label: 'Observe' },
+  { id: 'camera', alt: 'Camera', label: 'Camera', composite: true },
+  { id: 'analyzing', src: '/images/analyzing.png', alt: 'Analysing', label: 'Analysing' },
+  { id: 'results', src: '/images/img-8762.png', alt: 'Results', label: 'Results' },
+  { id: 'archive', src: '/images/archive-looks.png', alt: 'Saved looks', label: 'Archive' },
+  { id: 'wardrobe', src: '/images/archive-wardrobe.png', alt: 'Wardrobe', label: 'Wardrobe' },
 ]
 
 function phoneOpacity(active, i) {
@@ -35,6 +36,7 @@ export default function Screenshots({ locked = false }) {
 
   return (
     <section
+      id="preview"
       className="py-16 lg:py-section relative overflow-hidden"
       style={{ background: 'linear-gradient(to bottom, #F5F2EF 0%, #E8E5E1 15%, #E8E5E1 85%, #F5F2EF 93%, #ffffff 100%)' }}
     >
@@ -44,8 +46,8 @@ export default function Screenshots({ locked = false }) {
 
       <FadeInView className="text-center mb-3">
         <h2
-          className="font-display italic text-charcoal leading-tight"
-          style={{ fontSize: 'clamp(28px, 4vw, 56px)' }}
+          className="font-sans font-semibold tracking-tight text-charcoal leading-tight"
+          style={{ fontSize: 'clamp(30px, 4vw, 56px)' }}
         >
           A glimpse inside.
         </h2>
@@ -86,7 +88,7 @@ export default function Screenshots({ locked = false }) {
           >
             {screens.map((screen, i) => (
               <div
-                key={screen.src}
+                key={screen.id}
                 style={{
                   position: 'absolute',
                   left: -PHONE_W / 2,
@@ -98,9 +100,18 @@ export default function Screenshots({ locked = false }) {
                 }}
                 onClick={() => i !== active && setActive(i)}
               >
-                <PhoneMockup screenshot={screen.src} alt={screen.label} scale={0.72} />
+                {screen.composite ? (
+                  <PhoneMockup alt={screen.label} scale={0.72}>
+                    <div className="relative w-full h-full overflow-hidden">
+                      <img src="/images/asap-rocky.jpg" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover object-top" style={{ filter: 'brightness(0.88) contrast(1.05)' }} />
+                      <img src="/images/camera-ui.png" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover object-top" style={{ mixBlendMode: 'screen', opacity: 0.92 }} />
+                    </div>
+                  </PhoneMockup>
+                ) : (
+                  <PhoneMockup screenshot={screen.src} alt={screen.label} scale={0.72} />
+                )}
                 <p
-                  className="font-display-sc uppercase text-center mt-3 tracking-widest transition-opacity duration-300"
+                  className="font-sans font-medium uppercase text-center mt-3 tracking-widest transition-opacity duration-300"
                   style={{
                     fontSize: '0.52rem',
                     color: i === active ? '#C4A96E' : 'transparent',
@@ -163,14 +174,23 @@ export default function Screenshots({ locked = false }) {
           style={{ background: 'linear-gradient(to left, #E8E5E1, transparent)' }}
         />
         <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory px-12 pb-4 scrollbar-hide">
-          {screens.map(({ src, alt, label }) => (
-            <div key={src} className="flex-shrink-0 snap-center flex flex-col items-center gap-3">
-              <PhoneMockup screenshot={src} alt={alt} scale={0.7} />
+          {screens.map((screen) => (
+            <div key={screen.id} className="flex-shrink-0 snap-center flex flex-col items-center gap-3">
+              {screen.composite ? (
+                <PhoneMockup alt={screen.label} scale={0.7}>
+                  <div className="relative w-full h-full overflow-hidden">
+                    <img src="/images/asap-rocky.jpg" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover object-top" style={{ filter: 'brightness(0.88) contrast(1.05)' }} />
+                    <img src="/images/camera-ui.png" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover object-top" style={{ mixBlendMode: 'screen', opacity: 0.92 }} />
+                  </div>
+                </PhoneMockup>
+              ) : (
+                <PhoneMockup screenshot={screen.src} alt={screen.alt} scale={0.7} />
+              )}
               <span
-                className="font-display-sc text-gray-warm uppercase tracking-widest"
+                className="font-sans font-medium text-gray-warm uppercase tracking-widest"
                 style={{ fontSize: '0.52rem' }}
               >
-                {label}
+                {screen.label}
               </span>
             </div>
           ))}
@@ -214,7 +234,7 @@ export default function Screenshots({ locked = false }) {
       </div>{/* end gated carousel */}
 
       <FadeInView className="text-center mt-10">
-        <p className="font-display-sc text-gray-warm text-[0.55rem] tracking-editorial uppercase">
+        <p className="font-sans font-medium text-gray-warm text-[0.55rem] tracking-widest uppercase">
           Limited early access · iOS only
         </p>
       </FadeInView>
