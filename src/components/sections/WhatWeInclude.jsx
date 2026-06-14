@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import SectionLabel from '@/components/ui/SectionLabel'
 import FadeInView from '@/components/motion/FadeInView'
 import PhoneMockup from '@/components/ui/PhoneMockup'
+import GoldSparkle from '@/components/ui/GoldSparkle'
 
 const EASE = [0.22, 1, 0.36, 1]
 
@@ -47,7 +48,7 @@ export default function WhatWeInclude() {
             className="font-sans font-semibold tracking-tight text-charcoal leading-tight"
             style={{ fontSize: 'clamp(30px, 7vw, 56px)' }}
           >
-            What Soho Observer<br />includes.
+            What <GoldSparkle>Soho Observer</GoldSparkle><br />includes
           </h2>
         </FadeInView>
 
@@ -118,7 +119,7 @@ export default function WhatWeInclude() {
               className="font-sans font-semibold tracking-tight text-charcoal leading-tight text-left"
               style={{ fontSize: 'clamp(30px, 4vw, 56px)' }}
             >
-              What Soho Observer<br />includes.
+              What <GoldSparkle>Soho Observer</GoldSparkle><br />includes
             </h2>
           </FadeInView>
 

@@ -100,7 +100,7 @@ export default function Navbar() {
               <a
                 key={label}
                 href={href}
-                className="font-sans text-sm text-gray-warm hover:text-charcoal transition-colors duration-300 whitespace-nowrap"
+                className="font-sans text-sm text-gray-warm hover:text-gold transition-colors duration-300 whitespace-nowrap"
               >
                 {label}
               </a>
@@ -112,9 +112,9 @@ export default function Navbar() {
             <button
               onClick={() => {
                 window.dispatchEvent(new CustomEvent('soho:switch-to-login'))
-                window.location.hash = '#waitlist'
+                document.getElementById('waitlist')?.scrollIntoView({ behavior: 'smooth' })
               }}
-              className="font-sans text-sm text-gray-warm hover:text-charcoal transition-colors duration-300 whitespace-nowrap"
+              className="font-sans text-sm text-charcoal hover:text-gold transition-colors duration-300 whitespace-nowrap"
             >
               Log in
             </button>
@@ -141,6 +141,7 @@ export default function Navbar() {
               <div className="magic-trace absolute inset-0 pointer-events-none" aria-hidden="true" />
               <a
                 href="#waitlist"
+                onClick={() => window.dispatchEvent(new CustomEvent('soho:switch-to-join'))}
                 className="relative z-10 inline-flex font-sans text-xs font-medium bg-charcoal text-parchment rounded-full px-5 py-2.5 hover:bg-gold hover:text-charcoal transition-colors duration-300 whitespace-nowrap"
               >
                 Join the Waitlist
@@ -198,7 +199,7 @@ export default function Navbar() {
                   key={label}
                   href={href}
                   onClick={() => setMenuOpen(false)}
-                  className="font-sans text-sm text-gray-warm hover:text-charcoal transition-colors duration-300 py-4 border-b border-card/60 last:border-0 w-full text-center"
+                  className="font-sans text-sm text-gray-warm hover:text-gold transition-colors duration-300 py-4 border-b border-card/60 last:border-0 w-full text-center"
                   initial={{ opacity: 0, y: -6 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, ease: EASE, delay: i * 0.05 }}
@@ -236,7 +237,10 @@ export default function Navbar() {
                   <div className="magic-trace absolute inset-0 pointer-events-none" aria-hidden="true" />
                   <a
                     href="#waitlist"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={() => {
+                      setMenuOpen(false)
+                      window.dispatchEvent(new CustomEvent('soho:switch-to-join'))
+                    }}
                     className="relative z-10 block font-sans text-xs font-medium bg-charcoal text-parchment rounded-full px-7 py-3.5 text-center hover:bg-gold hover:text-charcoal transition-colors duration-300"
                   >
                     Join the Waitlist
@@ -248,9 +252,9 @@ export default function Navbar() {
                 onClick={() => {
                   setMenuOpen(false)
                   window.dispatchEvent(new CustomEvent('soho:switch-to-login'))
-                  window.location.hash = '#waitlist'
+                  document.getElementById('waitlist')?.scrollIntoView({ behavior: 'smooth' })
                 }}
-                className="mt-3 font-sans text-sm text-gray-warm hover:text-charcoal transition-colors duration-300 text-center py-2"
+                className="mt-3 font-sans text-sm text-charcoal hover:text-gold transition-colors duration-300 text-center py-2"
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, ease: EASE, delay: (navLinks.length + 1) * 0.05 }}

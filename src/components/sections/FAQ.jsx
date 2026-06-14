@@ -136,7 +136,7 @@ export default function FAQ() {
           style={{ fontSize: 'clamp(30px, 4vw, 56px)' }}
         >
           <span className="text-charcoal">Frequently asked </span>
-          <span className="text-gray-warm">questions.</span>
+          <span className="text-gray-warm">questions</span>
         </h2>
       </FadeInView>
 

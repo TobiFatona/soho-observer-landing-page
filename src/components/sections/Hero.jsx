@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import PhoneMockup from '@/components/ui/PhoneMockup'
+import GoldSparkle from '@/components/ui/GoldSparkle'
 
 const EASE = [0.22, 1, 0.36, 1]
 
@@ -66,15 +67,15 @@ export default function Hero() {
             </motion.span>
             <motion.span
               {...fadeUp(0.25)}
-              className="font-sans font-semibold tracking-tight text-charcoal leading-[1.1] block"
+              className="font-sans font-semibold tracking-tight leading-[1.1] block"
               style={{ fontSize: "clamp(28px, 4.5vw, 62px)" }}>
-              Unlock Your
+              <GoldSparkle>Unlock Your</GoldSparkle>
             </motion.span>
             <motion.span
               {...fadeUp(0.35)}
-              className="font-sans font-semibold tracking-tight text-gold leading-[1.1] block"
+              className="font-sans font-semibold tracking-tight leading-[1.1] block"
               style={{ fontSize: "clamp(28px, 4.5vw, 62px)" }}>
-              Fashion Potential.
+              <GoldSparkle>Fashion Potential</GoldSparkle>
             </motion.span>
           </div>
 

@@ -85,3 +85,26 @@
     transparent            100%
   );
 }
+
+/* ── Gold text shimmer ─────────────────────────────────────────────── */
+@keyframes gold-text-shimmer {
+  0%   { background-position: 150% center; }
+  50%  { background-position: -50% center; }
+  100% { background-position: 150% center; }
+}
+
+.gold-shimmer {
+  background: linear-gradient(
+    90deg,
+    #C4A96E 0%,
+    #C4A96E 22%,
+    #F7E07A 50%,
+    #C4A96E 78%,
+    #C4A96E 100%
+  );
+  background-size: 250% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gold-text-shimmer 4s ease-in-out infinite;
+}

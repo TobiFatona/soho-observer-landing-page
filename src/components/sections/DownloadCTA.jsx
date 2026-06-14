@@ -13,7 +13,7 @@ const PHONE_RE = /^\+[1-9]\d{7,14}$/
 const inputClass =
   'w-full font-sans text-sm bg-white border border-card rounded-full px-5 py-3.5 text-charcoal placeholder-gray-warm/50 focus:outline-none focus:border-gold transition-colors duration-300'
 
-const TYPEWRITER_CHARS = 'Observing.'.split('')
+const TYPEWRITER_CHARS = 'Observing'.split('')
 
 const fieldErrorClass = 'font-sans text-[0.68rem] text-[#CC0000] mt-1 ml-1'
 
@@ -40,6 +40,12 @@ export default function DownloadCTA({ onUnlock }) {
     const handler = () => setMode('login')
     window.addEventListener('soho:switch-to-login', handler)
     return () => window.removeEventListener('soho:switch-to-login', handler)
+  }, [])
+
+  useEffect(() => {
+    const handler = () => setMode('join')
+    window.addEventListener('soho:switch-to-join', handler)
+    return () => window.removeEventListener('soho:switch-to-join', handler)
   }, [])
 
   const observingRef = useRef(null)
@@ -164,30 +170,27 @@ export default function DownloadCTA({ onUnlock }) {
       />
 
       {/* Thin gold rule at top of section */}
-      <div className="relative flex items-center justify-center gap-5 mb-12">
-        <span className="block flex-1 max-w-[80px] h-px bg-gold/30" />
+      <div className="relative flex items-center justify-center mb-12">
         <SectionLabel>Join the Beta</SectionLabel>
-        <span className="block flex-1 max-w-[80px] h-px bg-gold/30" />
       </div>
 
       {/* Headline */}
-      <div className="relative mb-12">
-        <div className="overflow-hidden">
-          <motion.h2
-            className="font-sans font-semibold tracking-tight text-charcoal"
-            style={{ fontSize: 'clamp(38px, 7vw, 96px)', lineHeight: 0.92, paddingBottom: '0.06em' }}
-            initial={{ opacity: 0, y: 72 }}
-            animate={observingInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 72 }}
+      <div ref={observingRef} className="relative mb-12 overflow-visible" style={{ paddingBottom: '0.15em' }}>
+        <h2
+          className="font-sans font-semibold tracking-tight"
+          style={{ fontSize: 'clamp(40px, 6vw, 80px)', lineHeight: 1.1 }}
+        >
+          <motion.span
+            className="text-charcoal"
+            initial={{ opacity: 0, y: 16 }}
+            animate={observingInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
             transition={{ duration: 1, ease: EASE }}
+            style={{ display: 'inline-block' }}
           >
             Start
-          </motion.h2>
-        </div>
-        <div ref={observingRef} className="overflow-visible" style={{ paddingBottom: '0.1em' }}>
-          <h2
-            className="font-sans font-semibold italic tracking-tight text-gold"
-            style={{ fontSize: 'clamp(38px, 7vw, 96px)', lineHeight: 0.92 }}
-          >
+          </motion.span>
+          {' '}
+          <span className="italic gold-shimmer">
             {TYPEWRITER_CHARS.map((char, i) => (
               <motion.span
                 key={i}
@@ -198,8 +201,25 @@ export default function DownloadCTA({ onUnlock }) {
                 {char}
               </motion.span>
             ))}
-          </h2>
-        </div>
+          </span>
+        </h2>
+        {[
+          { x: '5%',  y: '-55%', delay: 0,   size: 9 },
+          { x: '82%', y: '-48%', delay: 1.2, size: 7 },
+          { x: '96%', y: '112%', delay: 2.5, size: 8 },
+          { x: '7%',  y: '108%', delay: 0.8, size: 6 },
+        ].map((s, i) => (
+          <motion.span
+            key={i}
+            className="absolute pointer-events-none select-none leading-none"
+            style={{ left: s.x, top: s.y, fontSize: s.size, color: '#C4A96E' }}
+            animate={{ opacity: [0, 1, 0], scale: [0.2, 1, 0.2] }}
+            transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut', delay: s.delay }}
+            aria-hidden="true"
+          >
+            ✦
+          </motion.span>
+        ))}
       </div>
 
       <FadeInView delay={0.3} className="relative max-w-[520px] mx-auto">

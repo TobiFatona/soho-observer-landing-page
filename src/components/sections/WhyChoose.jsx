@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import SectionLabel from '@/components/ui/SectionLabel'
 import FadeInView from '@/components/motion/FadeInView'
+import GoldSparkle from '@/components/ui/GoldSparkle'
 
 const EASE = [0.22, 1, 0.36, 1]
 
@@ -60,7 +61,7 @@ export default function WhyChoose() {
           className="font-sans font-semibold tracking-tight text-charcoal leading-tight"
           style={{ fontSize: 'clamp(30px, 4vw, 56px)' }}
         >
-          Why choose Soho Observer?
+          Why choose <GoldSparkle>Soho Observer</GoldSparkle>?
         </h2>
       </FadeInView>
 

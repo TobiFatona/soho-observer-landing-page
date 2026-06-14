@@ -105,7 +105,7 @@ export default function HowItWorks() {
           className="font-sans font-semibold tracking-tight text-charcoal leading-tight"
           style={{ fontSize: 'clamp(30px, 4vw, 56px)' }}
         >
-          The intelligence<br />behind every scan.
+          The intelligence<br />behind every scan
         </h2>
         <p className="font-sans text-sm text-gray-warm mt-4 max-w-sm mx-auto">
           From any image to a complete picture — what's worn, where to find it, and every alternative.
