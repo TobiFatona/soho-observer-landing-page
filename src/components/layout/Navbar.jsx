@@ -1,8 +1,45 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import GoldEyeLogo from '@/components/ui/GoldEyeLogo'
 
 const EASE = [0.22, 1, 0.36, 1]
+
+function GlowAnchor({ href, onClick, className, children }) {
+  const anchorRef = useRef(null)
+  const glowRef = useRef(null)
+
+  const handleMouseMove = (e) => {
+    if (!anchorRef.current || !glowRef.current) return
+    const rect = anchorRef.current.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
+    glowRef.current.style.background = `radial-gradient(circle 70px at ${x}px ${y}px, rgba(196,169,110,0.4) 0%, rgba(196,169,110,0.12) 55%, transparent 100%)`
+    glowRef.current.style.opacity = '1'
+  }
+
+  const handleMouseLeave = () => {
+    if (glowRef.current) glowRef.current.style.opacity = '0'
+  }
+
+  return (
+    <a
+      ref={anchorRef}
+      href={href}
+      onClick={onClick}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className={`${className} overflow-hidden`}
+    >
+      <span
+        ref={glowRef}
+        aria-hidden="true"
+        className="absolute inset-0 rounded-full pointer-events-none"
+        style={{ opacity: 0, transition: 'opacity 0.3s ease' }}
+      />
+      <span className="relative z-10">{children}</span>
+    </a>
+  )
+}
 
 const navLinks = [
   { label: 'Why use it', href: '#why' },
@@ -12,7 +49,20 @@ const navLinks = [
   { label: 'FAQ', href: '#faq' },
 ]
 
-const AT_TOP = {
+const AT_TOP_DESKTOP = {
+  width: '74%',
+  marginTop: 0,
+  borderRadius: 0,
+  backgroundColor: 'rgba(245,242,239,0)',
+  borderColor: 'rgba(232,229,225,0)',
+  boxShadow: '0 0 0px rgba(0,0,0,0)',
+  paddingTop: 16,
+  paddingBottom: 16,
+  paddingLeft: 0,
+  paddingRight: 0,
+}
+
+const AT_TOP_MOBILE = {
   width: '100%',
   marginTop: 0,
   borderRadius: 0,
@@ -25,9 +75,10 @@ const AT_TOP = {
   paddingRight: 24,
 }
 
+// Cream pill — past the hero section
 const PILL = {
-  width: '93%',
-  marginTop: 12,
+  width: '76%',
+  marginTop: 8,
   borderRadius: 9999,
   backgroundColor: 'rgba(245,242,239,0.96)',
   borderColor: 'rgba(232,229,225,1)',
@@ -38,6 +89,21 @@ const PILL = {
   paddingRight: 20,
 }
 
+// Dark pill — scrolled but still within the hero section
+const PILL_DARK = {
+  width: '76%',
+  marginTop: 8,
+  borderRadius: 9999,
+  backgroundColor: 'rgba(18,18,18,0.96)',
+  borderColor: 'rgba(255,255,255,0.1)',
+  boxShadow: '0 2px 20px rgba(0,0,0,0.35)',
+  paddingTop: 12,
+  paddingBottom: 12,
+  paddingLeft: 20,
+  paddingRight: 20,
+}
+
+// Cream mobile bar — past the hero section
 const SCROLLED_MOBILE = {
   width: '100%',
   marginTop: 0,
@@ -51,15 +117,36 @@ const SCROLLED_MOBILE = {
   paddingRight: 24,
 }
 
+// Dark mobile bar — scrolled but still within the hero section
+const SCROLLED_MOBILE_DARK = {
+  width: '100%',
+  marginTop: 0,
+  borderRadius: 0,
+  backgroundColor: 'rgba(18,18,18,0.96)',
+  borderColor: 'rgba(255,255,255,0.1)',
+  boxShadow: '0 2px 12px rgba(0,0,0,0.35)',
+  paddingTop: 12,
+  paddingBottom: 12,
+  paddingLeft: 24,
+  paddingRight: 24,
+}
+
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
+  const [pastHero, setPastHero] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [isDesktop, setIsDesktop] = useState(
     () => typeof window !== 'undefined' && window.innerWidth >= 1024
   )
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 80)
+    const onScroll = () => {
+      const why = document.getElementById('why')
+      // Colour theme switches when the viewport reaches the #why section
+      const heroBottom = why ? why.offsetTop - 60 : window.innerHeight
+      setScrolled(window.scrollY > 40)
+      setPastHero(window.scrollY >= heroBottom)
+    }
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
@@ -80,6 +167,12 @@ export default function Navbar() {
   const solidActive = scrolled || menuOpen
   const pillActive = isDesktop && solidActive
 
+  // true while the navbar is still over the dark hero background
+  const onDark = !pastHero
+
+  const desktopStyle = pillActive ? (pastHero ? PILL : PILL_DARK) : AT_TOP_DESKTOP
+  const mobileStyle  = solidActive ? (pastHero ? SCROLLED_MOBILE : SCROLLED_MOBILE_DARK) : AT_TOP_MOBILE
+
   return (
     <>
       {/* Outer wrapper: full-width fixed, centers the pill */}
@@ -89,7 +182,7 @@ export default function Navbar() {
         <motion.header
           className="pointer-events-auto flex items-center justify-between w-full"
           style={{ border: '1px solid transparent' }}
-          animate={isDesktop ? (pillActive ? PILL : AT_TOP) : (solidActive ? SCROLLED_MOBILE : AT_TOP)}
+          animate={isDesktop ? desktopStyle : mobileStyle}
           transition={{ duration: 0.45, ease: EASE }}
         >
           <GoldEyeLogo size={26} />
@@ -100,7 +193,9 @@ export default function Navbar() {
               <a
                 key={label}
                 href={href}
-                className="font-sans text-sm text-gray-warm hover:text-gold transition-colors duration-300 whitespace-nowrap"
+                className={`font-sans text-sm transition-colors duration-300 whitespace-nowrap ${
+                  onDark ? 'text-parchment/85 hover:text-gold' : 'text-gray-warm hover:text-gold'
+                }`}
               >
                 {label}
               </a>
@@ -114,7 +209,9 @@ export default function Navbar() {
                 window.dispatchEvent(new CustomEvent('soho:switch-to-login'))
                 document.getElementById('waitlist')?.scrollIntoView({ behavior: 'smooth' })
               }}
-              className="font-sans text-sm text-charcoal hover:text-gold transition-colors duration-300 whitespace-nowrap"
+              className={`font-sans text-sm transition-colors duration-300 whitespace-nowrap ${
+                onDark ? 'text-parchment hover:text-gold' : 'text-charcoal hover:text-gold'
+              }`}
             >
               Log in
             </button>
@@ -138,14 +235,13 @@ export default function Navbar() {
               className="relative rounded-full overflow-hidden"
               style={{ padding: '2px', background: 'rgba(196,169,110,0.38)' }}
             >
-              <div className="magic-trace absolute inset-0 pointer-events-none" aria-hidden="true" />
-              <a
+              <GlowAnchor
                 href="#waitlist"
                 onClick={() => window.dispatchEvent(new CustomEvent('soho:switch-to-join'))}
-                className="relative z-10 inline-flex font-sans text-xs font-medium bg-charcoal text-parchment rounded-full px-5 py-2.5 hover:bg-gold hover:text-charcoal transition-colors duration-300 whitespace-nowrap"
+                className="relative z-10 inline-flex font-sans text-xs font-medium rounded-full px-5 py-2.5 whitespace-nowrap bg-charcoal text-parchment"
               >
                 Join the Waitlist
-              </a>
+              </GlowAnchor>
             </div>
           </div>
           </div>
@@ -158,19 +254,19 @@ export default function Navbar() {
             aria-expanded={menuOpen}
           >
             <motion.span
-              className="block h-px bg-charcoal"
+              className={`block h-px ${solidActive && !onDark ? 'bg-charcoal' : 'bg-parchment'}`}
               style={{ width: 22 }}
               animate={menuOpen ? { rotate: 45, y: 6 } : { rotate: 0, y: 0 }}
               transition={{ duration: 0.28, ease: EASE }}
             />
             <motion.span
-              className="block h-px bg-charcoal"
+              className={`block h-px ${solidActive && !onDark ? 'bg-charcoal' : 'bg-parchment'}`}
               style={{ width: 22 }}
               animate={menuOpen ? { opacity: 0, x: -4 } : { opacity: 1, x: 0 }}
               transition={{ duration: 0.2 }}
             />
             <motion.span
-              className="block h-px bg-charcoal"
+              className={`block h-px ${solidActive && !onDark ? 'bg-charcoal' : 'bg-parchment'}`}
               style={{ width: 22 }}
               animate={menuOpen ? { rotate: -45, y: -6 } : { rotate: 0, y: 0 }}
               transition={{ duration: 0.28, ease: EASE }}
@@ -178,7 +274,7 @@ export default function Navbar() {
           </button>
         </motion.header>
 
-        {/* Mobile dropdown — stays inside the flex-col, width matches pill */}
+        {/* Mobile dropdown */}
         <AnimatePresence>
           {menuOpen && (
             <motion.nav
@@ -186,11 +282,15 @@ export default function Navbar() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.28, ease: EASE }}
-              className="pointer-events-auto lg:hidden bg-parchment/97 backdrop-blur-sm px-8 pt-6 pb-8 flex flex-col items-center"
+              className={`pointer-events-auto lg:hidden backdrop-blur-sm px-8 pt-6 pb-8 flex flex-col items-center ${
+                onDark ? 'bg-charcoal/97' : 'bg-parchment/97'
+              }`}
               style={{
                 width: '100%',
                 borderRadius: 0,
-                borderTop: '1px solid rgba(232,229,225,0.6)',
+                borderTop: onDark
+                  ? '1px solid rgba(255,255,255,0.1)'
+                  : '1px solid rgba(232,229,225,0.6)',
                 boxShadow: '0 8px 24px rgba(0,0,0,0.07)',
               }}
             >
@@ -199,7 +299,11 @@ export default function Navbar() {
                   key={label}
                   href={href}
                   onClick={() => setMenuOpen(false)}
-                  className="font-sans text-sm text-gray-warm hover:text-gold transition-colors duration-300 py-4 border-b border-card/60 last:border-0 w-full text-center"
+                  className={`font-sans text-sm transition-colors duration-300 py-4 border-b last:border-0 w-full text-center hover:text-gold ${
+                    onDark
+                      ? 'text-parchment/85 border-white/10'
+                      : 'text-gray-warm border-card/60'
+                  }`}
                   initial={{ opacity: 0, y: -6 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, ease: EASE, delay: i * 0.05 }}
@@ -234,17 +338,18 @@ export default function Navbar() {
                   className="relative rounded-full overflow-hidden"
                   style={{ padding: '2px', background: 'rgba(196,169,110,0.38)' }}
                 >
-                  <div className="magic-trace absolute inset-0 pointer-events-none" aria-hidden="true" />
-                  <a
+                  <GlowAnchor
                     href="#waitlist"
                     onClick={() => {
                       setMenuOpen(false)
                       window.dispatchEvent(new CustomEvent('soho:switch-to-join'))
                     }}
-                    className="relative z-10 block font-sans text-xs font-medium bg-charcoal text-parchment rounded-full px-7 py-3.5 text-center hover:bg-gold hover:text-charcoal transition-colors duration-300"
+                    className={`relative z-10 block font-sans text-xs font-medium rounded-full px-7 py-3.5 text-center ${
+                      onDark ? 'bg-parchment text-charcoal' : 'bg-charcoal text-parchment'
+                    }`}
                   >
                     Join the Waitlist
-                  </a>
+                  </GlowAnchor>
                 </div>
               </motion.div>
 
@@ -254,7 +359,9 @@ export default function Navbar() {
                   window.dispatchEvent(new CustomEvent('soho:switch-to-login'))
                   document.getElementById('waitlist')?.scrollIntoView({ behavior: 'smooth' })
                 }}
-                className="mt-3 font-sans text-sm text-charcoal hover:text-gold transition-colors duration-300 text-center py-2"
+                className={`mt-3 font-sans text-sm hover:text-gold transition-colors duration-300 text-center py-2 ${
+                  onDark ? 'text-parchment' : 'text-charcoal'
+                }`}
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, ease: EASE, delay: (navLinks.length + 1) * 0.05 }}

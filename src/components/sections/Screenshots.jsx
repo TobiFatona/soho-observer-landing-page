@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import SectionLabel from '@/components/ui/SectionLabel'
 import PhoneMockup from '@/components/ui/PhoneMockup'
@@ -31,6 +31,42 @@ function phoneOpacity(active, i) {
 function prevIdx(i) { return (i - 1 + COUNT) % COUNT }
 function nextIdx(i) { return (i + 1) % COUNT }
 
+function GlowLink({ href, className, children }) {
+  const anchorRef = useRef(null)
+  const glowRef = useRef(null)
+
+  const handleMouseMove = (e) => {
+    if (!anchorRef.current || !glowRef.current) return
+    const rect = anchorRef.current.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
+    glowRef.current.style.background = `radial-gradient(circle 60px at ${x}px ${y}px, rgba(196,169,110,0.4) 0%, rgba(196,169,110,0.12) 55%, transparent 100%)`
+    glowRef.current.style.opacity = '1'
+  }
+
+  const handleMouseLeave = () => {
+    if (glowRef.current) glowRef.current.style.opacity = '0'
+  }
+
+  return (
+    <a
+      ref={anchorRef}
+      href={href}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className={`${className} relative overflow-hidden`}
+    >
+      <span
+        ref={glowRef}
+        aria-hidden="true"
+        className="absolute inset-0 rounded-full pointer-events-none"
+        style={{ opacity: 0, transition: 'opacity 0.3s ease' }}
+      />
+      <span className="relative z-10">{children}</span>
+    </a>
+  )
+}
+
 export default function Screenshots({ locked = false }) {
   const [active, setActive] = useState(0)
 
@@ -46,8 +82,8 @@ export default function Screenshots({ locked = false }) {
 
       <FadeInView className="text-center mb-3">
         <h2
-          className="font-sans font-semibold tracking-tight text-charcoal leading-tight"
-          style={{ fontSize: 'clamp(30px, 4vw, 56px)' }}
+          className="font-condensed font-semibold tracking-tight text-charcoal leading-tight"
+          style={{ fontSize: 'clamp(30px, 7vw, 56px)' }}
         >
           A glimpse inside.
         </h2>
@@ -222,12 +258,12 @@ export default function Screenshots({ locked = false }) {
               >
                 Join the waitlist to unlock the full preview
               </p>
-              <a
+              <GlowLink
                 href="#waitlist"
-                className="font-sans text-xs font-medium bg-charcoal text-parchment rounded-full px-5 py-2.5 hover:bg-gold hover:text-charcoal transition-colors duration-300 pointer-events-auto"
+                className="font-sans text-xs font-medium bg-charcoal text-parchment rounded-full px-5 py-2.5 pointer-events-auto"
               >
                 Join Waitlist →
-              </a>
+              </GlowLink>
             </motion.div>
           )}
         </AnimatePresence>

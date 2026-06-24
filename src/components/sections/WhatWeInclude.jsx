@@ -45,7 +45,7 @@ export default function WhatWeInclude() {
 
         <FadeInView className="mb-10 text-center">
           <h2
-            className="font-sans font-semibold tracking-tight text-charcoal leading-tight"
+            className="font-condensed font-semibold tracking-tight text-charcoal leading-tight"
             style={{ fontSize: 'clamp(30px, 7vw, 56px)' }}
           >
             What <GoldSparkle>Soho Observer</GoldSparkle><br />includes
@@ -74,7 +74,7 @@ export default function WhatWeInclude() {
                 {f.number}
               </span>
               <h3
-                className="font-sans font-semibold text-charcoal mb-2 leading-tight"
+                className="font-condensed font-semibold text-charcoal mb-2 leading-tight"
                 style={{ fontSize: 'clamp(19px, 5vw, 26px)' }}
               >
                 {f.title}
@@ -116,7 +116,7 @@ export default function WhatWeInclude() {
 
           <FadeInView className="mb-12">
             <h2
-              className="font-sans font-semibold tracking-tight text-charcoal leading-tight text-left"
+              className="font-condensed font-semibold tracking-tight text-charcoal leading-tight text-left"
               style={{ fontSize: 'clamp(30px, 4vw, 56px)' }}
             >
               What <GoldSparkle>Soho Observer</GoldSparkle><br />includes
@@ -141,7 +141,7 @@ export default function WhatWeInclude() {
                 </span>
                 <div>
                   <h3
-                    className="font-sans font-semibold text-charcoal mb-2 leading-tight"
+                    className="font-condensed font-semibold text-charcoal mb-2 leading-tight"
                     style={{ fontSize: 'clamp(18px, 2.2vw, 28px)' }}
                   >
                     {f.title}

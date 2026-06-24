@@ -20,9 +20,10 @@ export default {
         'card-dark': '#2A2520',
       },
       fontFamily: {
-        display: ['"Jost"', 'system-ui', 'sans-serif'],
-        'display-sc': ['"Jost"', 'system-ui', 'sans-serif'],
-        sans: ['"Jost"', 'system-ui', 'sans-serif'],
+        display: ['"Instrument Serif"', 'Georgia', 'serif'],
+        'display-sc': ['"Instrument Serif"', 'Georgia', 'serif'],
+        condensed: ['"Barlow Condensed"', 'sans-serif'],
+        sans: ['"Inter"', 'system-ui', 'sans-serif'],
       },
       fontSize: {
         label: ['0.65rem', { lineHeight: '1', letterSpacing: '0.25em' }],

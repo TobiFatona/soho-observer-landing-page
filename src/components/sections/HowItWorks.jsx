@@ -58,7 +58,7 @@ function StepCard({ step, i = 0, animated = false, cardClass = '' }) {
           {step.number}
         </span>
         <h3
-          className="font-sans font-semibold text-charcoal mt-2 mb-3 leading-tight"
+          className="font-condensed font-semibold text-charcoal mt-2 mb-3 leading-tight"
           style={{ fontSize: 'clamp(19px, 2vw, 26px)' }}
         >
           {step.title}
@@ -102,8 +102,8 @@ export default function HowItWorks() {
 
       <FadeInView className="text-center mb-14">
         <h2
-          className="font-sans font-semibold tracking-tight text-charcoal leading-tight"
-          style={{ fontSize: 'clamp(30px, 4vw, 56px)' }}
+          className="font-condensed font-semibold tracking-tight text-charcoal leading-tight"
+          style={{ fontSize: 'clamp(30px, 7vw, 56px)' }}
         >
           The intelligence<br />behind every scan
         </h2>

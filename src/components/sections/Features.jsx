@@ -43,7 +43,7 @@ export default function Features() {
                   {f.number}
                 </span>
 
-                <h2 className={`font-sans font-semibold tracking-tight text-charcoal mb-4 ${i === 2 ? 'text-right' : ''}`}
+                <h2 className={`font-condensed font-semibold tracking-tight text-charcoal mb-4 ${i === 2 ? 'text-right' : ''}`}
                   style={{ fontSize: 'clamp(36px, 5vw, 68px)' }}
                 >
                   {f.label}

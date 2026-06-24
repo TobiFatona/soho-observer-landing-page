@@ -1,329 +1,639 @@
-import { motion } from 'framer-motion'
-import PhoneMockup from '@/components/ui/PhoneMockup'
-import GoldSparkle from '@/components/ui/GoldSparkle'
+import { useEffect, useRef, useState } from 'react'
+import { motion, useMotionValue, useSpring, useTransform, useScroll, AnimatePresence } from 'framer-motion'
 
 const EASE = [0.22, 1, 0.36, 1]
+const PARCHMENT = '#F5F2EF'
 
 function fadeUp(delay) {
   return {
     initial: { opacity: 0, y: 24 },
     animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.8, ease: EASE, delay },
+    transition: { duration: 0.9, ease: EASE, delay },
   }
 }
 
-const stats = [
-  { number: '100+', label: 'Brands Identified' },
-  { number: '< 1 min', label: 'ID Time' },
-]
+const PARTICLES = Array.from({ length: 30 }, (_, i) => ({
+  id: i,
+  x: Math.random() * 100,
+  y: Math.random() * 100,
+  size: Math.random() * 3 + 1,
+  delay: Math.random() * 5,
+  duration: Math.random() * 4 + 4,
+  opacity: Math.random() * 0.45 + 0.18,
+}))
+
+const RIPPLE_COUNT = 4
+
+function GoldParticles() {
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+      {PARTICLES.map((p) => (
+        <motion.span
+          key={p.id}
+          className="absolute select-none leading-none"
+          style={{
+            left: `${p.x}%`,
+            top: `${p.y}%`,
+            fontSize: p.size,
+            color: '#C4A96E',
+            opacity: p.opacity,
+          }}
+          animate={{
+            opacity: [p.opacity * 0.3, p.opacity, p.opacity * 0.3],
+            scale: [0.6, 1, 0.6],
+            y: [0, -8, 0],
+          }}
+          transition={{
+            duration: p.duration,
+            repeat: Infinity,
+            ease: 'easeInOut',
+            delay: p.delay,
+          }}
+        >
+          ✦
+        </motion.span>
+      ))}
+    </div>
+  )
+}
+
+function RippleRings({ isHovered }) {
+  return (
+    <div className="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden="true">
+      {Array.from({ length: RIPPLE_COUNT }).map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute rounded-full"
+          style={{ border: '1px solid rgba(196,169,110,0.18)' }}
+          animate={{
+            width: ['90px', '600px'],
+            height: ['54px', '360px'],
+            opacity: [0.5, 0],
+          }}
+          transition={{
+            duration: isHovered ? 2.4 : 4,
+            repeat: Infinity,
+            ease: 'easeOut',
+            delay: i * (isHovered ? 0.6 : 1),
+          }}
+        />
+      ))}
+    </div>
+  )
+}
+
+// Live green-screen keyer: plays observe_eye.mp4 off-screen, paints each frame
+// to a canvas, removes green pixels (transparent) with edge de-spill. Same-origin
+// canvas (never tainted). Uses requestVideoFrameCallback when available so it only
+// re-keys on a genuine new video frame — keeps it cheap and smooth.
+function ChromaVideo({ width = 340 }) {
+  const videoRef = useRef(null)
+  const canvasRef = useRef(null)
+
+  useEffect(() => {
+    const video = videoRef.current
+    const canvas = canvasRef.current
+    if (!video || !canvas) return
+
+    const ctx = canvas.getContext('2d', { willReadFrequently: true })
+    let rafId = null
+    let vfcId = null
+    let cw = 0
+    let ch = 0
+    let stopped = false
+
+    // greenness = green minus the stronger of red/blue.
+    const LOW = 40 // below this: fully opaque (the subject)
+    const HIGH = 95 // above this: fully transparent (the screen)
+    const RANGE = HIGH - LOW
+
+    // Colour grade: the raw eye is a dark bronze (~rgb 159,95,32). Lift it to
+    // the site's gold (#C4A96E → #F7E07A). Per-channel gamma raises shadows and
+    // mid-tones while leaving highlights near white (no cyan blow-out), and the
+    // stronger green/blue gammas warm the bronze into the lighter theme gold.
+    // Built once as 256-entry lookup tables — just an array read per pixel.
+    const R_GAMMA = 1.45
+    const G_GAMMA = 1.9
+    const B_GAMMA = 2.7
+    const buildLut = (gamma) => {
+      const lut = new Uint8ClampedArray(256)
+      for (let v = 0; v < 256; v++) lut[v] = 255 * Math.pow(v / 255, 1 / gamma)
+      return lut
+    }
+    const rLut = buildLut(R_GAMMA)
+    const gLut = buildLut(G_GAMMA)
+    const bLut = buildLut(B_GAMMA)
+
+    const setup = () => {
+      const vw = video.videoWidth
+      const vh = video.videoHeight
+      if (!vw || !vh) return false
+      const MAX = 512 // cap the worked resolution for steady 60fps
+      const scale = Math.min(1, MAX / Math.max(vw, vh))
+      cw = Math.round(vw * scale)
+      ch = Math.round(vh * scale)
+      canvas.width = cw
+      canvas.height = ch
+      return true
+    }
+
+    const drawFrame = () => {
+      if (stopped || (!cw && !setup())) return
+      ctx.drawImage(video, 0, 0, cw, ch)
+      const frame = ctx.getImageData(0, 0, cw, ch)
+      const d = frame.data
+      for (let i = 0; i < d.length; i += 4) {
+        const r = d[i]
+        const g = d[i + 1]
+        const b = d[i + 2]
+        const greenness = g - (r > b ? r : b)
+        // de-spill: pull green fringe back toward neutral
+        const half = (r + b) >> 1
+        if (g > half) d[i + 1] = half
+        if (greenness > LOW) {
+          d[i + 3] = greenness >= HIGH
+            ? 0
+            : Math.round(255 * (1 - (greenness - LOW) / RANGE))
+        }
+        // lighten + warm the kept pixels toward the theme gold
+        d[i] = rLut[d[i]]
+        d[i + 1] = gLut[d[i + 1]]
+        d[i + 2] = bLut[d[i + 2]]
+      }
+      ctx.putImageData(frame, 0, 0)
+    }
+
+    const loopVFC = () => {
+      drawFrame()
+      vfcId = video.requestVideoFrameCallback(loopVFC)
+    }
+    const loopRAF = () => {
+      drawFrame()
+      rafId = requestAnimationFrame(loopRAF)
+    }
+
+    const start = () => {
+      setup()
+      video.play().catch(() => {})
+      if ('requestVideoFrameCallback' in video) {
+        vfcId = video.requestVideoFrameCallback(loopVFC)
+      } else {
+        rafId = requestAnimationFrame(loopRAF)
+      }
+    }
+
+    if (video.readyState >= 2) start()
+    else video.addEventListener('loadeddata', start, { once: true })
+
+    return () => {
+      stopped = true
+      video.removeEventListener('loadeddata', start)
+      if (rafId) cancelAnimationFrame(rafId)
+      if (vfcId && video.cancelVideoFrameCallback) video.cancelVideoFrameCallback(vfcId)
+    }
+  }, [])
+
+  return (
+    <>
+      <video
+        ref={videoRef}
+        src="/images/observe_eye.mp4"
+        muted
+        loop
+        autoPlay
+        playsInline
+        preload="auto"
+        style={{ display: 'none' }}
+      />
+      <canvas
+        ref={canvasRef}
+        aria-hidden="true"
+        style={{ width, height: 'auto', display: 'block' }}
+      />
+    </>
+  )
+}
+
+function HeroEye({ mouseX, mouseY }) {
+  const [isHovered, setIsHovered] = useState(false)
+
+  const rotateX = useTransform(mouseY, [-1, 1], [5, -5])
+  const rotateY = useTransform(mouseX, [-1, 1], [-5, 5])
+
+  const springRotateX = useSpring(rotateX, { stiffness: 60, damping: 18 })
+  const springRotateY = useSpring(rotateY, { stiffness: 60, damping: 18 })
+
+  return (
+    <div className="relative flex items-center justify-center">
+      {/* Ambient gold glow — the "goldish hue coming from the eye" */}
+      <motion.div
+        className="absolute pointer-events-none"
+        style={{
+          width: 'min(82vw, 660px)',
+          height: 'min(56vh, 460px)',
+          background:
+            'radial-gradient(ellipse at 50% 50%, rgba(196,169,110,0.30) 0%, rgba(196,169,110,0.12) 42%, transparent 70%)',
+          filter: 'blur(50px)',
+          borderRadius: '50%',
+        }}
+        animate={{
+          opacity: isHovered ? [0.7, 1, 0.7] : [0.5, 0.78, 0.5],
+          scale: isHovered ? [1, 1.08, 1] : [1, 1.04, 1],
+        }}
+        transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
+      />
+
+      {/* Ripple rings */}
+      <RippleRings isHovered={isHovered} />
+
+      {/* 3D floating eye */}
+      <motion.div
+        style={{
+          rotateX: springRotateX,
+          rotateY: springRotateY,
+          perspective: 1000,
+          transformStyle: 'preserve-3d',
+        }}
+        animate={{
+          y: [0, -12, 4, -8, 0],
+          x: [0, 4, -3, 6, 0],
+        }}
+        transition={{
+          duration: 11,
+          repeat: Infinity,
+          ease: 'easeInOut',
+        }}
+        whileHover={{ scale: 1.04 }}
+        onHoverStart={() => setIsHovered(true)}
+        onHoverEnd={() => setIsHovered(false)}
+        className="relative cursor-pointer pointer-events-auto"
+      >
+        {/* Drop shadow / bloom */}
+        <motion.div
+          className="absolute pointer-events-none"
+          style={{
+            inset: -30,
+            background: 'radial-gradient(ellipse at 50% 55%, rgba(196,169,110,0.50) 0%, transparent 65%)',
+            filter: 'blur(22px)',
+          }}
+          animate={{
+            opacity: isHovered ? [0.7, 1, 0.7] : [0.45, 0.66, 0.45],
+          }}
+          transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+        />
+
+        {/* Live green-screened rotating eye video — sized like the reference play button */}
+        <ChromaVideo width="clamp(260px, 60vw, 470px)" />
+
+        {/* Hover: extra bloom overlay */}
+        <AnimatePresence>
+          {isHovered && (
+            <motion.div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background: 'radial-gradient(ellipse at 50% 50%, rgba(247,224,122,0.16) 0%, transparent 65%)',
+                filter: 'blur(8px)',
+              }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4 }}
+            />
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </div>
+  )
+}
+
+function AppStoreBadge() {
+  return (
+    <div
+      className="inline-flex items-center gap-3 rounded-xl"
+      style={{
+        background: '#000',
+        border: '1px solid rgba(255,255,255,0.2)',
+        padding: '10px 18px',
+      }}
+    >
+      {/* Apple logo — Font Awesome path, well-tested at small sizes */}
+      <svg
+        width="15"
+        height="19"
+        viewBox="0 0 384 512"
+        fill="white"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
+        <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z" />
+      </svg>
+      <div
+        className="flex flex-col items-start"
+        style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif' }}
+      >
+        <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.62)', letterSpacing: '0.02em', lineHeight: 1.3 }}>
+          Coming Soon to the
+        </span>
+        <span style={{ fontSize: 19, color: 'white', fontWeight: 600, lineHeight: 1.2 }}>
+          App Store
+        </span>
+      </div>
+    </div>
+  )
+}
+
+function WaitlistCTA() {
+  const anchorRef = useRef(null)
+  const glowRef = useRef(null)
+
+  const handleMouseMove = (e) => {
+    if (!anchorRef.current || !glowRef.current) return
+    const rect = anchorRef.current.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
+    glowRef.current.style.background = `radial-gradient(circle 90px at ${x}px ${y}px, rgba(196,169,110,0.45) 0%, rgba(196,169,110,0.15) 55%, transparent 100%)`
+    glowRef.current.style.opacity = '1'
+  }
+
+  const handleMouseLeave = () => {
+    if (glowRef.current) glowRef.current.style.opacity = '0'
+  }
+
+  return (
+    <div className="relative w-full">
+      <motion.div
+        className="absolute -inset-4 rounded-full pointer-events-none"
+        style={{
+          background: 'radial-gradient(ellipse at 50% 50%, rgba(196,169,110,0.50) 0%, rgba(196,169,110,0.20) 45%, transparent 70%)',
+          filter: 'blur(18px)',
+        }}
+        animate={{ opacity: [0.45, 0.8, 0.45], scale: [1, 1.04, 1] }}
+        transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      <div
+        className="relative rounded-full overflow-hidden w-full"
+        style={{ padding: 2, background: 'rgba(196,169,110,0.45)' }}
+      >
+        <a
+          ref={anchorRef}
+          href="#waitlist"
+          onClick={() => window.dispatchEvent(new CustomEvent('soho:switch-to-join'))}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+          className="relative z-10 block w-full text-center font-sans text-sm font-semibold bg-black text-white rounded-full px-7 py-3.5 cursor-pointer overflow-hidden"
+        >
+          <span
+            ref={glowRef}
+            aria-hidden="true"
+            className="absolute inset-0 rounded-full pointer-events-none"
+            style={{ opacity: 0, transition: 'opacity 0.3s ease' }}
+          />
+          <span className="relative z-10">Join the Waitlist</span>
+        </a>
+      </div>
+    </div>
+  )
+}
+
+function SpotlightText({ children, baseColor, brightColor, glowColor, radius = 130 }) {
+  const containerRef = useRef(null)
+  const overlayRef = useRef(null)
+
+  const handleMouseMove = (e) => {
+    if (!overlayRef.current || !containerRef.current) return
+    const rect = containerRef.current.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
+    const mask = `radial-gradient(circle ${radius}px at ${x}px ${y}px, black 15%, rgba(0,0,0,0.5) 55%, transparent 100%)`
+    overlayRef.current.style.WebkitMaskImage = mask
+    overlayRef.current.style.maskImage = mask
+    overlayRef.current.style.opacity = '1'
+  }
+
+  const handleMouseLeave = () => {
+    if (overlayRef.current) overlayRef.current.style.opacity = '0'
+  }
+
+  return (
+    <span
+      ref={containerRef}
+      style={{ position: 'relative', display: 'block', color: baseColor, pointerEvents: 'auto' }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+    >
+      {children}
+      <span
+        ref={overlayRef}
+        aria-hidden="true"
+        style={{
+          position: 'absolute',
+          inset: 0,
+          display: 'block',
+          opacity: 0,
+          color: brightColor,
+          textShadow: `0 0 22px ${glowColor}, 0 0 55px ${glowColor}`,
+          pointerEvents: 'none',
+          transition: 'opacity 0.25s ease',
+        }}
+      >
+        {children}
+      </span>
+    </span>
+  )
+}
+
+const SUBHEAD =
+  'Welcome to Soho Observer — the AI-powered fashion discovery app that identifies every piece in an outfit from photo or saved image. Instantly see the brand, price, and where to buy it, then explore curated alternatives across luxury and premium affordable tiers.'
 
 export default function Hero() {
+  const sectionRef = useRef(null)
+  const mouseX = useMotionValue(0)
+  const mouseY = useMotionValue(0)
+
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ['start start', 'end start'],
+  })
+  const eyeOpacity = useTransform(scrollYProgress, [0, 0.2, 0.42], [1, 1, 0])
+  const eyeScale = useTransform(scrollYProgress, [0, 0.42], [1, 0.9])
+  const eyeVisibility = useTransform(scrollYProgress, (v) => (v >= 0.42 ? 'hidden' : 'visible'))
+
+  useEffect(() => {
+    let rafId
+    const onMove = (e) => {
+      rafId = requestAnimationFrame(() => {
+        const w = window.innerWidth
+        const h = window.innerHeight
+        mouseX.set((e.clientX - w / 2) / (w / 2))
+        mouseY.set((e.clientY - h / 2) / (h / 2))
+      })
+    }
+    window.addEventListener('mousemove', onMove, { passive: true })
+    return () => {
+      window.removeEventListener('mousemove', onMove)
+      if (rafId) cancelAnimationFrame(rafId)
+    }
+  }, [mouseX, mouseY])
+
   return (
     <section
-      className="relative min-h-screen flex items-center overflow-x-hidden"
-      style={{ background: 'linear-gradient(to bottom, #F5F2EF 0%, #F5F2EF 92%, #ffffff 100%)' }}
+      ref={sectionRef}
+      className="relative min-h-screen overflow-hidden"
+      style={{ backgroundColor: '#050505' }}
     >
-      <div className="w-full max-w-[1400px] mx-auto px-[6vw] flex flex-col md:flex-row items-center gap-12 lg:gap-28 pt-24 pb-16 md:pt-20 md:pb-0">
-        {/* LEFT: text */}
-        <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left min-w-0">
+      {/* ── Cinematic background ── */}
+      <div aria-hidden="true" className="absolute inset-0 z-0 pointer-events-none">
+        {/* Central gold hue radiating from the eye */}
+        <div
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+          style={{
+            width: 'min(125vw, 1200px)',
+            height: 'min(125vh, 1200px)',
+            background:
+              'radial-gradient(ellipse at center, rgba(196,169,110,0.22) 0%, rgba(196,169,110,0.09) 28%, rgba(196,169,110,0.03) 46%, transparent 64%)',
+            filter: 'blur(12px)',
+          }}
+        />
+        {/* Vignette */}
+        <div
+          className="absolute inset-0"
+          style={{ background: 'radial-gradient(ellipse at center, transparent 46%, rgba(0,0,0,0.58) 100%)' }}
+        />
+      </div>
+
+      <GoldParticles />
+
+      {/* ── Fixed, viewport-centred eye — stays put on scroll ── */}
+      <motion.div
+        className="fixed inset-0 z-30 flex items-center justify-center pointer-events-none"
+        style={{ opacity: eyeOpacity, scale: eyeScale, visibility: eyeVisibility }}
+      >
+        {/* nudge eye slightly above centre on mobile so text can sit below it */}
+        <div className="-translate-y-[8vh] lg:translate-y-0">
+          <HeroEye mouseX={mouseX} mouseY={mouseY} />
+        </div>
+      </motion.div>
+
+      {/* ── Desktop foreground: words flank the eye ── */}
+      <div className="hidden lg:block absolute inset-0 z-20 pointer-events-none">
+        <motion.h1
+          {...fadeUp(0.1)}
+          className="absolute font-condensed font-semibold tracking-tight leading-[0.9]"
+          style={{ top: '18%', left: '13vw', fontSize: 'clamp(44px, 6.5vw, 96px)' }}
+        >
+          <SpotlightText
+            baseColor="rgba(245,242,239,0.6)"
+            brightColor="rgba(245,242,239,1)"
+            glowColor="rgba(255,255,255,0.5)"
+            radius={150}
+          >
+            <span className="block">From Inspiration</span>
+            <span className="block">to Discovery</span>
+          </SpotlightText>
+        </motion.h1>
+
+        <motion.p
+          {...fadeUp(0.4)}
+          className="absolute font-sans"
+          style={{ top: '46%', left: '13vw', maxWidth: 340, fontSize: 15, lineHeight: 1.6 }}
+        >
+          <SpotlightText
+            baseColor="rgba(245,242,239,0.62)"
+            brightColor="rgba(245,242,239,0.95)"
+            glowColor="rgba(255,255,255,0.35)"
+            radius={100}
+          >
+            {SUBHEAD}
+          </SpotlightText>
+        </motion.p>
+
+        {/* Bottom right — above CTA cluster */}
+        <motion.h2
+          {...fadeUp(0.28)}
+          className="absolute font-condensed font-semibold tracking-tight leading-[0.9] text-right"
+          style={{ bottom: '28%', right: '13vw', fontSize: 'clamp(36px, 5.5vw, 80px)', maxWidth: '42vw' }}
+        >
+          <SpotlightText
+            baseColor="rgba(196,169,110,0.6)"
+            brightColor="rgba(210,182,120,1)"
+            glowColor="rgba(196,169,110,0.65)"
+            radius={140}
+          >
+            <span className="block">Unlock your fashion</span>
+            <span className="block">potential</span>
+          </SpotlightText>
+        </motion.h2>
+
+        {/* CTA cluster — outer div handles centering so framer-motion y-animation
+            doesn't fight CSS translateX(-50%). Width is shared by both children. */}
+        <div
+          className="absolute pointer-events-none"
+          style={{ bottom: '12%', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}
+        >
           <motion.div
-            {...fadeUp(0)}
-            className="inline-flex items-center gap-2.5 bg-white border border-card rounded-full px-5 py-2.5 mb-8">
-            <span className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse flex-shrink-0" />
-            <span className="font-sans text-xs text-gray-warm tracking-wide">
-              Fashion's best-kept secret · Beta launching soon
-            </span>
+            {...fadeUp(0.55)}
+            className="flex flex-col items-center gap-3 pointer-events-auto"
+            style={{ width: 240 }}
+          >
+            <WaitlistCTA />
+            <AppStoreBadge />
           </motion.div>
+        </div>
+      </div>
 
-          {/* Mobile phone — between badge and headline */}
+      {/* ── Mobile foreground: mirrors desktop — H1 top-left, H2 bottom-right, CTAs bottom-centre ── */}
+      <div className="lg:hidden absolute inset-0 z-20 pointer-events-none">
+
+        {/* H1 — top-left, above the eye */}
+        <motion.h1
+          {...fadeUp(0.1)}
+          className="absolute font-condensed font-semibold tracking-tight leading-[0.95]"
+          style={{ top: '17vh', left: '6vw', maxWidth: '55vw', fontSize: 'clamp(32px, 8.5vw, 50px)' }}
+        >
+          <SpotlightText
+            baseColor="rgba(245,242,239,0.6)"
+            brightColor="rgba(245,242,239,1)"
+            glowColor="rgba(255,255,255,0.5)"
+            radius={130}
+          >
+            <span className="block">From Inspiration</span>
+            <span className="block">to Discovery</span>
+          </SpotlightText>
+        </motion.h1>
+
+        {/* H2 — bottom-right, below the eye, mirrors desktop */}
+        <motion.h2
+          {...fadeUp(0.28)}
+          className="absolute font-condensed font-semibold tracking-tight leading-[0.95] text-right"
+          style={{ bottom: '30vh', right: '6vw', maxWidth: '55vw', fontSize: 'clamp(28px, 8vw, 46px)' }}
+        >
+          <SpotlightText
+            baseColor="rgba(196,169,110,0.6)"
+            brightColor="rgba(210,182,120,1)"
+            glowColor="rgba(196,169,110,0.65)"
+            radius={120}
+          >
+            <span className="block">Unlock your fashion</span>
+            <span className="block">potential</span>
+          </SpotlightText>
+        </motion.h2>
+
+        {/* CTAs — bottom-centre */}
+        <div
+          className="absolute pointer-events-none flex justify-center"
+          style={{ bottom: '8vh', left: 0, right: 0 }}
+        >
           <motion.div
-            {...fadeUp(0.2)}
-            className="block md:hidden self-center mb-6 flex-shrink-0">
-            <PhoneMockup scale={0.72}>
-              <div className="relative w-full h-full overflow-hidden">
-                <img
-                  src="/images/asap-rocky.jpg"
-                  alt="ASAP Rocky street style"
-                  className="absolute inset-0 w-full h-full object-cover object-top"
-                  style={{ filter: "brightness(0.88) contrast(1.05)" }}
-                />
-                <img
-                  src="/images/camera-ui.png"
-                  alt=""
-                  aria-hidden="true"
-                  className="absolute inset-0 w-full h-full object-cover object-top"
-                  style={{ mixBlendMode: "screen", opacity: 0.92 }}
-                />
-              </div>
-            </PhoneMockup>
-          </motion.div>
-
-          <div className="mb-6">
-            <motion.span
-              {...fadeUp(0.15)}
-              className="font-sans font-semibold tracking-tight text-charcoal leading-[1.1] block"
-              style={{ fontSize: "clamp(28px, 4.5vw, 62px)" }}>
-              Inspiration to Discovery,
-            </motion.span>
-            <motion.span
-              {...fadeUp(0.25)}
-              className="font-sans font-semibold tracking-tight leading-[1.1] block"
-              style={{ fontSize: "clamp(28px, 4.5vw, 62px)" }}>
-              <GoldSparkle>Unlock Your</GoldSparkle>
-            </motion.span>
-            <motion.span
-              {...fadeUp(0.35)}
-              className="font-sans font-semibold tracking-tight leading-[1.1] block"
-              style={{ fontSize: "clamp(28px, 4.5vw, 62px)" }}>
-              <GoldSparkle>Fashion Potential</GoldSparkle>
-            </motion.span>
-          </div>
-
-          <motion.p
-            {...fadeUp(0.5)}
-            className="font-sans text-base text-gray-warm leading-relaxed mb-8 max-w-[480px] mx-auto md:mx-0">
-            Welcome to Soho Observer — the AI-powered fashion discovery app that
-            identifies every piece in an outfit from a photo or saved image.
-            Instantly see the brand, price, and where to buy it, then explore
-            curated alternatives across luxury, premium, and affordable tiers.
-          </motion.p>
-
-          <motion.div
-            {...fadeUp(0.6)}
-            className="flex flex-col gap-3 mb-9 w-full max-w-[440px] mx-auto md:mx-0">
-            {/* Magic trace "Join the Waitlist" */}
-            <div className="relative w-full">
-              <motion.div
-                className="absolute -inset-5 rounded-full pointer-events-none"
-                style={{
-                  background:
-                    "radial-gradient(ellipse at 50% 50%, rgba(196,169,110,0.6) 0%, rgba(196,169,110,0.28) 45%, transparent 68%)",
-                  filter: "blur(22px)",
-                }}
-                animate={{ opacity: [0.55, 0.92, 0.55], scale: [1, 1.06, 1] }}
-                transition={{
-                  duration: 2.8,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-              />
-              <motion.div
-                className="absolute inset-0 rounded-full pointer-events-none"
-                style={{
-                  boxShadow:
-                    "0 0 12px 3px rgba(196,169,110,0.5), 0 0 28px 8px rgba(196,169,110,0.2)",
-                }}
-                animate={{ opacity: [0.6, 1, 0.6] }}
-                transition={{
-                  duration: 2.8,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  delay: 0.3,
-                }}
-              />
-              <div
-                className="relative rounded-full overflow-hidden w-full"
-                style={{
-                  padding: "2px",
-                  background: "rgba(196,169,110,0.38)",
-                }}>
-                <div
-                  className="magic-trace absolute inset-0 pointer-events-none"
-                  aria-hidden="true"
-                />
-                <a
-                  href="#waitlist"
-                  className="relative z-10 block w-full font-sans text-sm font-medium bg-charcoal text-parchment rounded-full px-7 py-3.5 hover:bg-gold hover:text-charcoal transition-colors duration-300 text-center">
-                  Join the Waitlist
-                </a>
-              </div>
-            </div>
-            <div className="flex items-center justify-center md:justify-start">
-              <div className="inline-flex items-center gap-2 bg-charcoal/5 border border-charcoal/12 rounded-full px-4 py-1.5">
-                <svg
-                  width="12"
-                  height="15"
-                  viewBox="0 0 22 28"
-                  fill="currentColor"
-                  className="text-charcoal flex-shrink-0">
-                  <path d="M18.05 14.76c-.03-3.3 2.7-4.9 2.82-4.97-1.54-2.25-3.93-2.56-4.78-2.59-2.04-.21-3.98 1.2-5.02 1.2-1.04 0-2.65-1.17-4.36-1.14C4.47 7.29 2.41 8.56 1.26 10.56-1.1 14.6.5 21.08 2.84 24.6c1.16 1.68 2.54 3.57 4.35 3.5 1.75-.07 2.41-1.13 4.53-1.13 2.11 0 2.71 1.13 4.56 1.1 1.88-.03 3.07-1.7 4.22-3.38 1.33-1.94 1.88-3.82 1.91-3.92-.04-.02-3.65-1.4-3.68-5.54l.02.03zM14.72 5.3c.96-1.17 1.61-2.79 1.43-4.41-1.38.06-3.07.93-4.06 2.07-.89 1.01-1.67 2.65-1.46 4.2 1.54.12 3.11-.78 4.09-1.86z" />
-                </svg>
-                <span className="font-sans text-[0.72rem] text-charcoal/80 font-medium">
-                  Coming soon to iOS
-                </span>
-              </div>
-            </div>
-          </motion.div>
-
-          <motion.div
-            {...fadeUp(0.7)}
-            className="flex items-stretch justify-center md:justify-start">
-            {stats.map(({ number, label }, i) => (
-              <div
-                key={label}
-                className={`flex flex-col items-start py-1 ${
-                  i > 0
-                    ? "border-l border-gold-200 ml-6 pl-6 sm:ml-10 sm:pl-10"
-                    : ""
-                }`}>
-                <span
-                  className="font-sans text-gold leading-none mb-1.5"
-                  style={{ fontSize: "0.48rem", letterSpacing: "0.1em" }}>
-                  ✦
-                </span>
-                <span
-                  className="font-sans font-bold text-charcoal leading-none"
-                  style={{ fontSize: "clamp(19px, 2.2vw, 26px)" }}>
-                  {number}
-                </span>
-                <span className="font-sans text-[0.58rem] text-gray-warm mt-1.5 tracking-wide uppercase">
-                  {label}
-                </span>
-              </div>
-            ))}
+            {...fadeUp(0.55)}
+            className="flex flex-col items-center gap-3 pointer-events-auto w-full max-w-[240px]"
+          >
+            <WaitlistCTA />
+            <AppStoreBadge />
           </motion.div>
         </div>
 
-        {/* RIGHT: Cal AI–style demo visual */}
-        <motion.div
-          className="hidden md:block relative flex-shrink-0"
-          style={{ width: 520, height: 600 }}
-          initial={{ opacity: 0, x: 30 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 1.2, ease: EASE, delay: 0.45 }}>
-          <div className="absolute left-1/2 -translate-x-1/2 top-0 z-10">
-            <PhoneMockup scale={0.9}>
-              <div className="relative w-full h-full overflow-hidden">
-                <img
-                  src="/images/asap-rocky.jpg"
-                  alt="ASAP Rocky street style"
-                  className="absolute inset-0 w-full h-full object-cover object-top"
-                  style={{ filter: "brightness(0.88) contrast(1.05)" }}
-                />
-                <img
-                  src="/images/camera-ui.png"
-                  alt=""
-                  aria-hidden="true"
-                  className="absolute inset-0 w-full h-full object-cover object-top"
-                  style={{ mixBlendMode: "screen", opacity: 0.92 }}
-                />
-              </div>
-            </PhoneMockup>
-          </div>
-
-          {/* Annotation 1 */}
-          <div
-            className="absolute z-20 flex flex-col items-end gap-1.5"
-            style={{ left: 0, top: 162 }}>
-            <span
-              className="font-sans font-medium text-charcoal uppercase text-right leading-loose"
-              style={{ fontSize: "0.48rem", letterSpacing: "0.22em" }}>
-              Scan any
-              <br />
-              outfit
-            </span>
-            <svg width="116" height="22" viewBox="0 0 116 22" fill="none">
-              <path
-                d="M3,11 C26,1 90,21 113,11"
-                stroke="#C4A96E"
-                strokeWidth="1.2"
-                strokeLinecap="round"
-              />
-              <path
-                d="M108,6 L114,11 L108,16"
-                stroke="#C4A96E"
-                strokeWidth="1.2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </div>
-
-          {/* Annotation 2: result card */}
-          <div
-            className="absolute z-20 flex flex-col items-start"
-            style={{ right: 0, bottom: 10 }}>
-            <svg
-              width="46"
-              height="42"
-              viewBox="0 0 46 42"
-              fill="none"
-              className="self-start ml-4">
-              <path
-                d="M44,40 C32,24 10,26 3,8"
-                stroke="#C4A96E"
-                strokeWidth="1.2"
-                strokeLinecap="round"
-              />
-              <path
-                d="M0,2 L4,10 L10,5"
-                stroke="#C4A96E"
-                strokeWidth="1.2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            <div
-              className="rounded-2xl border border-white/5"
-              style={{
-                width: 180,
-                background: "#181818",
-                boxShadow: "0 16px 48px rgba(0,0,0,0.4)",
-                padding: "14px 16px",
-              }}>
-              <div
-                className="font-sans font-medium text-gold uppercase"
-                style={{
-                  fontSize: "0.44rem",
-                  letterSpacing: "0.22em",
-                  marginBottom: 10,
-                }}>
-                Identified
-              </div>
-              {[
-                ["01", "Tie-Dye Knit"],
-                ["02", "Cargo Trousers"],
-                ["03", "Air Force 1"],
-              ].map(([n, label]) => (
-                <div
-                  key={label}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                    marginBottom: 7,
-                  }}>
-                  <span
-                    className="font-sans font-medium"
-                    style={{
-                      color: "rgba(255,255,255,0.18)",
-                      fontSize: "0.38rem",
-                    }}>
-                    {n}
-                  </span>
-                  <span
-                    className="font-sans"
-                    style={{ color: "#F5F2EF", fontSize: "0.66rem" }}>
-                    {label}
-                  </span>
-                </div>
-              ))}
-              <div
-                style={{
-                  borderTop: "1px solid rgba(255,255,255,0.07)",
-                  paddingTop: 9,
-                  marginTop: 2,
-                }}>
-                <span
-                  className="font-sans text-gold"
-                  style={{ fontSize: "0.56rem" }}>
-                  View &amp; shop →
-                </span>
-              </div>
-            </div>
-          </div>
-        </motion.div>
       </div>
+
     </section>
-  );
+  )
 }

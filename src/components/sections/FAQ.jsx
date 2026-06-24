@@ -83,7 +83,7 @@ function FAQItem({ item }) {
         aria-expanded={open}
       >
         <span
-          className="font-sans font-semibold italic text-charcoal group-hover:text-gold transition-colors duration-300"
+          className="font-condensed font-semibold italic text-charcoal group-hover:text-gold transition-colors duration-300"
           style={{ fontSize: 'clamp(16px, 1.6vw, 22px)' }}
         >
           {item.q}
@@ -132,8 +132,8 @@ export default function FAQ() {
 
       <FadeInView className="text-center mb-16">
         <h2
-          className="font-sans font-semibold tracking-tight leading-tight"
-          style={{ fontSize: 'clamp(30px, 4vw, 56px)' }}
+          className="font-condensed font-semibold tracking-tight leading-tight"
+          style={{ fontSize: 'clamp(30px, 7vw, 56px)' }}
         >
           <span className="text-charcoal">Frequently asked </span>
           <span className="text-gray-warm">questions</span>

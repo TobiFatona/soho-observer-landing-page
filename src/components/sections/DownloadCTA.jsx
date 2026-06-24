@@ -177,7 +177,7 @@ export default function DownloadCTA({ onUnlock }) {
       {/* Headline */}
       <div ref={observingRef} className="relative mb-12 overflow-visible" style={{ paddingBottom: '0.15em' }}>
         <h2
-          className="font-sans font-semibold tracking-tight"
+          className="font-condensed font-semibold tracking-tight"
           style={{ fontSize: 'clamp(40px, 6vw, 80px)', lineHeight: 1.1 }}
         >
           <motion.span

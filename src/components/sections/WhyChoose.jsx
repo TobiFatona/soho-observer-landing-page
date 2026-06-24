@@ -49,8 +49,10 @@ export default function WhyChoose() {
   return (
     <section
       id="why"
-      className="pt-12 pb-16 lg:pt-20 lg:pb-section px-[8vw]"
-      style={{ background: 'linear-gradient(to bottom, #ffffff 0%, #ffffff 75%, #F5F2EF 100%)' }}
+      className="relative pt-24 pb-16 lg:pt-36 lg:pb-section px-[8vw]"
+      style={{
+        background: '#F5F2EF',
+      }}
     >
       <FadeInView className="flex justify-center mb-4">
         <SectionLabel>Why Choose</SectionLabel>
@@ -58,8 +60,8 @@ export default function WhyChoose() {
 
       <FadeInView className="text-center mb-4">
         <h2
-          className="font-sans font-semibold tracking-tight text-charcoal leading-tight"
-          style={{ fontSize: 'clamp(30px, 4vw, 56px)' }}
+          className="font-condensed font-semibold tracking-tight text-charcoal leading-tight"
+          style={{ fontSize: 'clamp(30px, 7vw, 56px)' }}
         >
           Why choose <GoldSparkle>Soho Observer</GoldSparkle>?
         </h2>
@@ -90,7 +92,7 @@ export default function WhyChoose() {
               {r.icon}
             </div>
             <h3
-              className="font-sans font-semibold text-charcoal mb-3 leading-tight"
+              className="font-condensed font-semibold text-charcoal mb-3 leading-tight"
               style={{ fontSize: 'clamp(18px, 2vw, 24px)' }}
             >
               {r.title}
@@ -119,7 +121,7 @@ export default function WhyChoose() {
               {r.icon}
             </div>
             <h3
-              className="font-sans font-semibold text-charcoal mb-3 leading-tight"
+              className="font-condensed font-semibold text-charcoal mb-3 leading-tight"
               style={{ fontSize: 'clamp(18px, 2vw, 24px)' }}
             >
               {r.title}
