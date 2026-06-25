@@ -203,7 +203,7 @@ function ChromaVideo({ width = 340 }) {
         autoPlay
         playsInline
         preload="auto"
-        style={{ display: 'none' }}
+        style={{ position: 'absolute', width: 1, height: 1, opacity: 0, top: -9999, left: -9999, pointerEvents: 'none' }}
       />
       <canvas
         ref={canvasRef}
@@ -509,8 +509,7 @@ export default function Hero() {
         className="fixed inset-0 z-30 flex items-center justify-center pointer-events-none"
         style={{ opacity: eyeOpacity, scale: eyeScale, visibility: eyeVisibility }}
       >
-        {/* nudge eye slightly above centre on mobile so text can sit below it */}
-        <div className="-translate-y-[8vh] lg:translate-y-0">
+        <div>
           <HeroEye mouseX={mouseX} mouseY={mouseY} />
         </div>
       </motion.div>

@@ -346,9 +346,7 @@ export default function Navbar() {
                       setMenuOpen(false)
                       window.dispatchEvent(new CustomEvent('soho:switch-to-join'))
                     }}
-                    className={`relative z-10 block font-sans text-xs font-medium rounded-full px-7 py-3.5 text-center ${
-                      onDark ? 'bg-parchment text-charcoal' : 'bg-charcoal text-parchment'
-                    }`}
+                    className="relative z-10 block font-sans text-xs font-medium rounded-full px-7 py-3.5 text-center bg-charcoal text-parchment"
                   >
                     Join the Waitlist
                   </GlowAnchor>
