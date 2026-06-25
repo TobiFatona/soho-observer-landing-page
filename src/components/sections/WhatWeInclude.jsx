@@ -53,7 +53,7 @@ export default function WhatWeInclude() {
         </FadeInView>
 
         <FadeInView className="flex justify-center mb-10">
-          <PhoneMockup screenshot="/images/img-8762.png" alt="Soho Observer observe UI" scale={0.82} />
+          <PhoneMockup screenshot="/images/img-8762.webp" alt="Soho Observer observe UI" scale={0.82} />
         </FadeInView>
 
         {/* Horizontal scroll feature cards */}
@@ -97,7 +97,7 @@ export default function WhatWeInclude() {
 
         <FadeInView className="flex-shrink-0">
           <div className="relative">
-            <PhoneMockup screenshot="/images/img-8762.png" alt="Soho Observer observe UI" scale={1.05} />
+            <PhoneMockup screenshot="/images/img-8762.webp" alt="Soho Observer observe UI" scale={1.05} />
             <div
               className="absolute inset-0 rounded-full pointer-events-none"
               style={{

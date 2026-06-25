@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence, useInView } from 'framer-motion'
 import SectionLabel from '@/components/ui/SectionLabel'
 import FadeInView from '@/components/motion/FadeInView'
-import { supabase } from '@/lib/supabase'
+import { getSupabase } from '@/lib/supabase'
 
 const EASE = [0.22, 1, 0.36, 1]
 
@@ -81,6 +81,7 @@ export default function DownloadCTA({ onUnlock }) {
       const timeout = new Promise((_, reject) =>
         setTimeout(() => reject(new Error('timeout')), TIMEOUT_MS)
       )
+      const supabase = await getSupabase()
       const result = await Promise.race([
         supabase.from('waitlist').insert({ first_name: firstName, last_name: lastName, email, phone }),
         timeout,
@@ -126,6 +127,14 @@ export default function DownloadCTA({ onUnlock }) {
     // If the email is already in the waitlist, Supabase returns error 23505 on the email column.
     // That conflict IS the verification — no SELECT permission needed.
     const dummyPhone = `+9${Date.now()}`
+    let supabase
+    try {
+      supabase = await getSupabase()
+    } catch {
+      setLoginError('Something went wrong. Please try again.')
+      setLoginLoading(false)
+      return
+    }
     const { error } = await supabase
       .from('waitlist')
       .insert({ email: loginEmail, first_name: '_', last_name: '_', phone: dummyPhone })

@@ -12,13 +12,13 @@ const PHONE_W = 202
 const PHONE_H = 418
 
 const screens = [
-  { id: 'home', src: '/images/app-home-v2.png', alt: 'Home', label: 'Home' },
-  { id: 'observe', src: '/images/observe-ui.png', alt: 'Observe', label: 'Observe' },
+  { id: 'home', src: '/images/app-home-v2.webp', alt: 'Home', label: 'Home' },
+  { id: 'observe', src: '/images/observe-ui.webp', alt: 'Observe', label: 'Observe' },
   { id: 'camera', alt: 'Camera', label: 'Camera', composite: true },
-  { id: 'analyzing', src: '/images/analyzing.png', alt: 'Analysing', label: 'Analysing' },
-  { id: 'results', src: '/images/img-8762.png', alt: 'Results', label: 'Results' },
-  { id: 'archive', src: '/images/archive-looks.png', alt: 'Saved looks', label: 'Archive' },
-  { id: 'wardrobe', src: '/images/archive-wardrobe.png', alt: 'Wardrobe', label: 'Wardrobe' },
+  { id: 'analyzing', src: '/images/analyzing.webp', alt: 'Analysing', label: 'Analysing' },
+  { id: 'results', src: '/images/img-8762.webp', alt: 'Results', label: 'Results' },
+  { id: 'archive', src: '/images/archive-looks.webp', alt: 'Saved looks', label: 'Archive' },
+  { id: 'wardrobe', src: '/images/archive-wardrobe.webp', alt: 'Wardrobe', label: 'Wardrobe' },
 ]
 
 function phoneOpacity(active, i) {
@@ -139,8 +139,8 @@ export default function Screenshots({ locked = false }) {
                 {screen.composite ? (
                   <PhoneMockup alt={screen.label} scale={0.72}>
                     <div className="relative w-full h-full overflow-hidden">
-                      <img src="/images/asap-rocky.jpg" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover object-top" style={{ filter: 'brightness(0.88) contrast(1.05)' }} />
-                      <img src="/images/camera-ui.png" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover object-top" style={{ mixBlendMode: 'screen', opacity: 0.92 }} />
+                      <img src="/images/asap-rocky.webp" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover object-top" style={{ filter: 'brightness(0.88) contrast(1.05)' }} />
+                      <img src="/images/camera-ui.webp" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover object-top" style={{ mixBlendMode: 'screen', opacity: 0.92 }} />
                     </div>
                   </PhoneMockup>
                 ) : (
@@ -215,8 +215,8 @@ export default function Screenshots({ locked = false }) {
               {screen.composite ? (
                 <PhoneMockup alt={screen.label} scale={0.7}>
                   <div className="relative w-full h-full overflow-hidden">
-                    <img src="/images/asap-rocky.jpg" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover object-top" style={{ filter: 'brightness(0.88) contrast(1.05)' }} />
-                    <img src="/images/camera-ui.png" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover object-top" style={{ mixBlendMode: 'screen', opacity: 0.92 }} />
+                    <img src="/images/asap-rocky.webp" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover object-top" style={{ filter: 'brightness(0.88) contrast(1.05)' }} />
+                    <img src="/images/camera-ui.webp" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover object-top" style={{ mixBlendMode: 'screen', opacity: 0.92 }} />
                   </div>
                 </PhoneMockup>
               ) : (

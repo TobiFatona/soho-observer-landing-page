@@ -3,13 +3,13 @@ export const steps = [
     number: '01',
     title: 'Observe',
     body: 'Photograph any outfit with your camera or import directly from your photo library.',
-    screen: '/images/app-observe.png',
+    screen: '/images/app-observe.webp',
   },
   {
     number: '02',
     title: 'Identify',
     body: 'Every garment is recognized and catalogued with precision — brand, cut, colour, and material.',
-    screen: '/images/app-home.png',
+    screen: '/images/app-home.webp',
   },
   {
     number: '03',
@@ -21,6 +21,6 @@ export const steps = [
     number: '04',
     title: 'Archive',
     body: 'Save your looks. Build your wardrobe intelligence over time.',
-    screen: '/images/app-archive.png',
+    screen: '/images/app-archive.webp',
   },
 ]

@@ -8,19 +8,19 @@ const EASE = [0.22, 1, 0.36, 1]
 const steps = [
   {
     number: '01',
-    image: '/images/how-it-works-a.png',
+    image: '/images/how-it-works-a.webp',
     title: 'Recognition beyond the logo.',
     body: "Soho Observer's AI doesn't look for logos — it reads garment architecture. Silhouette, construction detail, fabric drape, cut lines, and design DNA are analysed in parallel across a model trained on thousands of pieces spanning 100+ labels. Branding obscured? It still identifies. Street photo, editorial scan, or a saved screenshot — the source doesn't matter. What's worn gets recognised.",
   },
   {
     number: '02',
-    image: '/images/how-it-works-b.jpg',
+    image: '/images/how-it-works-b.webp',
     title: 'Curated by aesthetic. Not keyword.',
     body: "When you want alternatives at a different price point, the engine doesn't search keywords — it maps aesthetic DNA. Silhouette category, construction style, material weight, and design language are cross-referenced to surface pieces that carry the same visual character as the original. The same look, made reachable — matched to your price range.",
   },
   {
     number: '03',
-    image: '/images/how-it-works-c.png',
+    image: '/images/how-it-works-c.webp',
     title: 'Linked to buy. One tap away.',
     body: "Every identified piece connects directly to purchase across multiple retailers and price tiers. No manual searching, no lost tabs. Tap to open the exact item — or its curated alternative — and go straight to the retailer. Shortlist pieces as you go, return when you're ready.",
   },
@@ -46,6 +46,8 @@ function StepCard({ step, i = 0, animated = false, cardClass = '' }) {
         <img
           src={step.image}
           alt={step.title}
+          loading="lazy"
+          decoding="async"
           className="w-full h-full object-cover object-center"
         />
         <div

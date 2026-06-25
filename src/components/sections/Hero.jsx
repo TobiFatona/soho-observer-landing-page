@@ -12,6 +12,29 @@ function fadeUp(delay) {
   }
 }
 
+// "Lite" mode = mobile viewport or reduced-motion preference. On mobile GPUs the
+// fixed, scroll-scaled eye layer — stacked blur() filters over a live canvas —
+// is far too expensive to recomposite each scroll frame, so we strip the blurs,
+// drop the scroll scale, and thin the decorative animation in this mode.
+function useLiteMode() {
+  const get = () =>
+    typeof window !== 'undefined' &&
+    (window.innerWidth < 1024 ||
+      !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)
+  const [lite, setLite] = useState(get)
+  useEffect(() => {
+    const update = () => setLite(get())
+    window.addEventListener('resize', update, { passive: true })
+    const mq = window.matchMedia?.('(prefers-reduced-motion: reduce)')
+    mq?.addEventListener?.('change', update)
+    return () => {
+      window.removeEventListener('resize', update)
+      mq?.removeEventListener?.('change', update)
+    }
+  }, [])
+  return lite
+}
+
 const PARTICLES = Array.from({ length: 30 }, (_, i) => ({
   id: i,
   x: Math.random() * 100,
@@ -24,10 +47,11 @@ const PARTICLES = Array.from({ length: 30 }, (_, i) => ({
 
 const RIPPLE_COUNT = 4
 
-function GoldParticles() {
+function GoldParticles({ lite = false }) {
+  const particles = lite ? PARTICLES.slice(0, 12) : PARTICLES
   return (
     <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-      {PARTICLES.map((p) => (
+      {particles.map((p) => (
         <motion.span
           key={p.id}
           className="absolute select-none leading-none"
@@ -86,7 +110,7 @@ function RippleRings({ isHovered }) {
 // removal entirely on the GPU (no JS pixel loops, no CPU↔GPU readback via
 // getImageData). texImage2D(video) uploads each frame as a texture directly.
 // Falls back to Canvas 2D on the rare browser that lacks WebGL.
-function ChromaVideo({ width = 340 }) {
+function ChromaVideo({ width = 340, maxRes = 0 }) {
   const videoRef = useRef(null)
   const canvasRef = useRef(null)
 
@@ -159,8 +183,13 @@ function ChromaVideo({ width = 340 }) {
       const draw = () => {
         if (stopped || video.readyState < 2) return
         if (!sized && video.videoWidth) {
-          canvas.width  = video.videoWidth
-          canvas.height = video.videoHeight
+          // Cap the backing-store resolution. The source is huge (3524×2352);
+          // rendering the shader + compositing that surface every frame is the
+          // mobile bottleneck. We only display ~470px, so a small canvas is plenty.
+          const vw = video.videoWidth, vh = video.videoHeight
+          const s = maxRes ? Math.min(1, maxRes / Math.max(vw, vh)) : 1
+          canvas.width  = Math.round(vw * s)
+          canvas.height = Math.round(vh * s)
           gl.viewport(0, 0, canvas.width, canvas.height)
           sized = true
         }
@@ -205,7 +234,7 @@ function ChromaVideo({ width = 340 }) {
     const setup2d = () => {
       const vw = video.videoWidth, vh = video.videoHeight
       if (!vw || !vh) return false
-      const s = Math.min(1, 512 / Math.max(vw, vh))
+      const s = Math.min(1, (maxRes || 512) / Math.max(vw, vh))
       cw = Math.round(vw * s); ch = Math.round(vh * s)
       canvas.width = cw; canvas.height = ch
       return true
@@ -245,7 +274,7 @@ function ChromaVideo({ width = 340 }) {
       if (rafId) cancelAnimationFrame(rafId)
       if (vfcId && video.cancelVideoFrameCallback) video.cancelVideoFrameCallback(vfcId)
     }
-  }, [])
+  }, [maxRes])
 
   return (
     <>
@@ -262,13 +291,24 @@ function ChromaVideo({ width = 340 }) {
       <canvas
         ref={canvasRef}
         aria-hidden="true"
-        style={{ width, height: 'auto', display: 'block' }}
+        // Promote the canvas to its own GPU layer so its per-frame updates don't
+        // force the browser to re-blend the translucent background gradients
+        // stacked behind it — that re-blend is what spiked when the eye sat
+        // dead-centre over the brightest part of the hero at scroll 0.
+        style={{
+          width,
+          height: 'auto',
+          display: 'block',
+          transform: 'translateZ(0)',
+          backfaceVisibility: 'hidden',
+          willChange: 'transform',
+        }}
       />
     </>
   )
 }
 
-function HeroEye({ mouseX, mouseY }) {
+function HeroEye({ mouseX, mouseY, lite = false }) {
   const [isHovered, setIsHovered] = useState(false)
 
   const rotateX = useTransform(mouseY, [-1, 1], [5, -5])
@@ -279,7 +319,9 @@ function HeroEye({ mouseX, mouseY }) {
 
   return (
     <div className="relative flex items-center justify-center">
-      {/* Ambient gold glow — the "goldish hue coming from the eye" */}
+      {/* Ambient gold glow — the "goldish hue coming from the eye". On lite/mobile
+          the radial gradient is already soft, so we drop the blur() (which is the
+          expensive part to recomposite over the live canvas) and the scale pulse. */}
       <motion.div
         className="absolute pointer-events-none"
         style={{
@@ -287,33 +329,43 @@ function HeroEye({ mouseX, mouseY }) {
           height: 'min(56vh, 460px)',
           background:
             'radial-gradient(ellipse at 50% 50%, rgba(196,169,110,0.30) 0%, rgba(196,169,110,0.12) 42%, transparent 70%)',
-          filter: 'blur(50px)',
+          filter: lite ? 'none' : 'blur(50px)',
           borderRadius: '50%',
         }}
-        animate={{
-          opacity: isHovered ? [0.7, 1, 0.7] : [0.5, 0.78, 0.5],
-          scale: isHovered ? [1, 1.08, 1] : [1, 1.04, 1],
-        }}
+        animate={
+          lite
+            ? { opacity: [0.5, 0.72, 0.5] }
+            : {
+                opacity: isHovered ? [0.7, 1, 0.7] : [0.5, 0.78, 0.5],
+                scale: isHovered ? [1, 1.08, 1] : [1, 1.04, 1],
+              }
+        }
         transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
       />
 
-      {/* Ripple rings */}
-      <RippleRings isHovered={isHovered} />
+      {/* Ripple rings — animate width/height (layout cost); desktop only */}
+      {!lite && <RippleRings isHovered={isHovered} />}
 
-      {/* 3D floating eye */}
+      {/* 3D floating eye. On lite/mobile there's no mouse, so we skip the
+          perspective/preserve-3d stacking context and keep a single cheap float. */}
       <motion.div
-        style={{
-          rotateX: springRotateX,
-          rotateY: springRotateY,
-          perspective: 1000,
-          transformStyle: 'preserve-3d',
-        }}
-        animate={{
-          y: [0, -12, 4, -8, 0],
-          x: [0, 4, -3, 6, 0],
-        }}
+        style={
+          lite
+            ? {}
+            : {
+                rotateX: springRotateX,
+                rotateY: springRotateY,
+                perspective: 1000,
+                transformStyle: 'preserve-3d',
+              }
+        }
+        animate={
+          lite
+            ? { y: [0, -8, 0] }
+            : { y: [0, -12, 4, -8, 0], x: [0, 4, -3, 6, 0] }
+        }
         transition={{
-          duration: 11,
+          duration: lite ? 9 : 11,
           repeat: Infinity,
           ease: 'easeInOut',
         }}
@@ -322,22 +374,22 @@ function HeroEye({ mouseX, mouseY }) {
         onHoverEnd={() => setIsHovered(false)}
         className="relative cursor-pointer pointer-events-auto"
       >
-        {/* Drop shadow / bloom */}
+        {/* Drop shadow / bloom — blur dropped on lite/mobile (gradient is soft) */}
         <motion.div
           className="absolute pointer-events-none"
           style={{
             inset: -30,
             background: 'radial-gradient(ellipse at 50% 55%, rgba(196,169,110,0.50) 0%, transparent 65%)',
-            filter: 'blur(22px)',
+            filter: lite ? 'none' : 'blur(22px)',
           }}
           animate={{
-            opacity: isHovered ? [0.7, 1, 0.7] : [0.45, 0.66, 0.45],
+            opacity: lite ? [0.4, 0.6, 0.4] : isHovered ? [0.7, 1, 0.7] : [0.45, 0.66, 0.45],
           }}
           transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
         />
 
         {/* Live green-screened rotating eye video — sized like the reference play button */}
-        <ChromaVideo width="clamp(260px, 60vw, 470px)" />
+        <ChromaVideo width="clamp(260px, 60vw, 470px)" maxRes={lite ? 540 : 900} />
 
         {/* Hover: extra bloom overlay */}
         <AnimatePresence>
@@ -504,6 +556,7 @@ export default function Hero() {
   const sectionRef = useRef(null)
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
+  const lite = useLiteMode()
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -546,7 +599,7 @@ export default function Hero() {
             height: 'min(125vh, 1200px)',
             background:
               'radial-gradient(ellipse at center, rgba(196,169,110,0.22) 0%, rgba(196,169,110,0.09) 28%, rgba(196,169,110,0.03) 46%, transparent 64%)',
-            filter: 'blur(12px)',
+            filter: lite ? 'none' : 'blur(12px)',
           }}
         />
         {/* Vignette */}
@@ -556,15 +609,22 @@ export default function Hero() {
         />
       </div>
 
-      <GoldParticles />
+      <GoldParticles lite={lite} />
 
-      {/* ── Fixed, viewport-centred eye — stays put on scroll ── */}
+      {/* ── Fixed, viewport-centred eye — stays put on scroll ──
+          On lite/mobile we drop the scroll-driven `scale`: scaling a fixed,
+          full-viewport layer forces the browser to re-rasterize it every scroll
+          frame. Fading opacity only (its own composited layer) stays smooth. */}
       <motion.div
         className="fixed inset-0 z-30 flex items-center justify-center pointer-events-none"
-        style={{ opacity: eyeOpacity, scale: eyeScale, visibility: eyeVisibility }}
+        style={
+          lite
+            ? { opacity: eyeOpacity, visibility: eyeVisibility, willChange: 'opacity' }
+            : { opacity: eyeOpacity, scale: eyeScale, visibility: eyeVisibility }
+        }
       >
         <div>
-          <HeroEye mouseX={mouseX} mouseY={mouseY} />
+          <HeroEye mouseX={mouseX} mouseY={mouseY} lite={lite} />
         </div>
       </motion.div>
 
