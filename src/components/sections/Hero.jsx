@@ -4,11 +4,11 @@ import { m, useMotionValue, useSpring, useTransform, useScroll, AnimatePresence 
 const EASE = [0.22, 1, 0.36, 1]
 const PARCHMENT = '#F5F2EF'
 
-function fadeUp(delay) {
+function fadeUp(delay, duration = 1.15) {
   return {
-    initial: { opacity: 0, y: 24 },
+    initial: { opacity: 0, y: 32 },
     animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.9, ease: EASE, delay },
+    transition: { duration, ease: EASE, delay },
   }
 }
 
@@ -623,15 +623,19 @@ export default function Hero() {
             : { opacity: eyeOpacity, scale: eyeScale, visibility: eyeVisibility }
         }
       >
-        <div>
+        <m.div
+          initial={{ opacity: 0, scale: 0.76 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.05, ease: EASE }}
+        >
           <HeroEye mouseX={mouseX} mouseY={mouseY} lite={lite} />
-        </div>
+        </m.div>
       </m.div>
 
       {/* ── Desktop foreground: words flank the eye ── */}
       <div className="hidden lg:block absolute inset-0 z-20 pointer-events-none">
         <m.h1
-          {...fadeUp(0.1)}
+          {...fadeUp(1.25)}
           className="absolute font-condensed font-semibold tracking-tight leading-[0.9]"
           style={{ top: '18%', left: '13vw', fontSize: 'clamp(44px, 6.5vw, 96px)' }}
         >
@@ -647,7 +651,7 @@ export default function Hero() {
         </m.h1>
 
         <m.p
-          {...fadeUp(0.4)}
+          {...fadeUp(1.75)}
           className="absolute font-sans"
           style={{ top: '46%', left: '13vw', maxWidth: 340, fontSize: 15, lineHeight: 1.6 }}
         >
@@ -663,7 +667,7 @@ export default function Hero() {
 
         {/* Bottom right — above CTA cluster */}
         <m.h2
-          {...fadeUp(0.28)}
+          {...fadeUp(1.5)}
           className="absolute font-condensed font-semibold tracking-tight leading-[0.9] text-right"
           style={{ bottom: '28%', right: '13vw', fontSize: 'clamp(36px, 5.5vw, 80px)', maxWidth: '42vw' }}
         >
@@ -685,7 +689,7 @@ export default function Hero() {
           style={{ bottom: '12%', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}
         >
           <m.div
-            {...fadeUp(0.55)}
+            {...fadeUp(2.0)}
             className="flex flex-col items-center gap-3 pointer-events-auto"
             style={{ width: 240 }}
           >
@@ -700,7 +704,7 @@ export default function Hero() {
 
         {/* H1 — top-left, above the eye */}
         <m.h1
-          {...fadeUp(0.1)}
+          {...fadeUp(1.25)}
           className="absolute font-condensed font-semibold tracking-tight leading-[0.95]"
           style={{ top: '17vh', left: '6vw', maxWidth: '55vw', fontSize: 'clamp(32px, 8.5vw, 50px)' }}
         >
@@ -717,7 +721,7 @@ export default function Hero() {
 
         {/* H2 — bottom-right, below the eye, mirrors desktop */}
         <m.h2
-          {...fadeUp(0.28)}
+          {...fadeUp(1.5)}
           className="absolute font-condensed font-semibold tracking-tight leading-[0.95] text-right"
           style={{ bottom: '30vh', right: '6vw', maxWidth: '55vw', fontSize: 'clamp(28px, 8vw, 46px)' }}
         >
@@ -738,7 +742,7 @@ export default function Hero() {
           style={{ bottom: '8vh', left: 0, right: 0 }}
         >
           <m.div
-            {...fadeUp(0.55)}
+            {...fadeUp(2.0)}
             className="flex flex-col items-center gap-3 pointer-events-auto w-full max-w-[240px]"
           >
             <WaitlistCTA />
