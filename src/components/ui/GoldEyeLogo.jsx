@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+import { m } from 'framer-motion'
 
 const LOGO_SPARKLES = [
   { left: 4,     top: -10, delay: 0,   size: 6 },
@@ -35,7 +35,7 @@ export default function GoldEyeLogo({ size = 20, className = '' }) {
   return (
     <div className={`relative flex items-center gap-2.5 ${className}`}>
       {/* Pulsing ambient glow behind the eye */}
-      <motion.div
+      <m.div
         className="absolute pointer-events-none"
         style={{
           left: -6,
@@ -61,7 +61,7 @@ export default function GoldEyeLogo({ size = 20, className = '' }) {
       </span>
 
       {LOGO_SPARKLES.map((s, i) => (
-        <motion.span
+        <m.span
           key={i}
           className="absolute pointer-events-none select-none leading-none"
           style={{ left: s.left, top: s.top, fontSize: s.size, color: '#C4A96E' }}
@@ -70,7 +70,7 @@ export default function GoldEyeLogo({ size = 20, className = '' }) {
           aria-hidden="true"
         >
           ✦
-        </motion.span>
+        </m.span>
       ))}
     </div>
   )

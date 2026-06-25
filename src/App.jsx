@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { LazyMotion, domAnimation } from 'framer-motion'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import Hero from '@/components/sections/Hero'
@@ -20,18 +21,20 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-parchment">
-      <Navbar />
-      <main>
-        <Hero />
-        <WhyChoose />
-        <WhatWeInclude />
-        <HowItWorks />
-        <Screenshots locked={!unlocked} />
-        <FAQ />
-        <DownloadCTA onUnlock={handleUnlock} />
-      </main>
-      <Footer />
-    </div>
+    <LazyMotion features={domAnimation}>
+      <div className="min-h-screen bg-parchment">
+        <Navbar />
+        <main>
+          <Hero />
+          <WhyChoose />
+          <WhatWeInclude />
+          <HowItWorks />
+          <Screenshots locked={!unlocked} />
+          <FAQ />
+          <DownloadCTA onUnlock={handleUnlock} />
+        </main>
+        <Footer />
+      </div>
+    </LazyMotion>
   )
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { m, AnimatePresence } from 'framer-motion'
 import SectionLabel from '@/components/ui/SectionLabel'
 import FadeInView from '@/components/motion/FadeInView'
 
@@ -88,18 +88,18 @@ function FAQItem({ item }) {
         >
           {item.q}
         </span>
-        <motion.span
+        <m.span
           className="flex-shrink-0 text-charcoal font-sans text-xl leading-none"
           animate={{ rotate: open ? 45 : 0 }}
           transition={{ duration: 0.28, ease: EASE }}
         >
           +
-        </motion.span>
+        </m.span>
       </button>
 
       <AnimatePresence initial={false}>
         {open && (
-          <motion.div
+          <m.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
@@ -109,7 +109,7 @@ function FAQItem({ item }) {
             <p className="font-sans text-sm text-gray-warm leading-relaxed pb-6 max-w-[560px]">
               {item.a}
             </p>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>
@@ -184,7 +184,7 @@ export default function FAQ() {
         {/* FAQ accordion */}
         <div className="flex-1 min-w-0">
           <AnimatePresence mode="wait">
-            <motion.div
+            <m.div
               key={activeCategory}
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
@@ -195,7 +195,7 @@ export default function FAQ() {
                 <FAQItem key={item.q} item={item} />
               ))}
               <div className="border-t border-gold-200" />
-            </motion.div>
+            </m.div>
           </AnimatePresence>
         </div>
 

@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { motion } from 'framer-motion'
+import { m } from 'framer-motion'
 import SectionLabel from '@/components/ui/SectionLabel'
 import FadeInView from '@/components/motion/FadeInView'
 
@@ -37,7 +37,7 @@ function StepCard({ step, i = 0, animated = false, cardClass = '' }) {
     : {}
 
   return (
-    <motion.div
+    <m.div
       className={`rounded-2xl overflow-hidden bg-white ${cardClass}`}
       style={{ boxShadow: '0 2px 18px rgba(0,0,0,0.07)', border: '1px solid #E8DDC0' }}
       {...motionProps}
@@ -68,7 +68,7 @@ function StepCard({ step, i = 0, animated = false, cardClass = '' }) {
         <span className="block w-8 h-px bg-gold-500 mb-4" />
         <p className="font-sans text-sm text-gray-warm leading-relaxed">{step.body}</p>
       </div>
-    </motion.div>
+    </m.div>
   )
 }
 

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { motion, AnimatePresence, useInView } from 'framer-motion'
+import { m, AnimatePresence, useInView } from 'framer-motion'
 import SectionLabel from '@/components/ui/SectionLabel'
 import FadeInView from '@/components/motion/FadeInView'
 import { getSupabase } from '@/lib/supabase'
@@ -189,7 +189,7 @@ export default function DownloadCTA({ onUnlock }) {
           className="font-condensed font-semibold tracking-tight"
           style={{ fontSize: 'clamp(40px, 6vw, 80px)', lineHeight: 1.1 }}
         >
-          <motion.span
+          <m.span
             className="text-charcoal"
             initial={{ opacity: 0, y: 16 }}
             animate={observingInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
@@ -197,18 +197,18 @@ export default function DownloadCTA({ onUnlock }) {
             style={{ display: 'inline-block' }}
           >
             Start
-          </motion.span>
+          </m.span>
           {' '}
           <span className="italic gold-shimmer">
             {TYPEWRITER_CHARS.map((char, i) => (
-              <motion.span
+              <m.span
                 key={i}
                 initial={{ opacity: 0 }}
                 animate={observingInView ? { opacity: 1 } : { opacity: 0 }}
                 transition={{ duration: 0.04, delay: 0.2 + i * 0.07, ease: 'linear' }}
               >
                 {char}
-              </motion.span>
+              </m.span>
             ))}
           </span>
         </h2>
@@ -218,7 +218,7 @@ export default function DownloadCTA({ onUnlock }) {
           { x: '96%', y: '112%', delay: 2.5, size: 8 },
           { x: '7%',  y: '108%', delay: 0.8, size: 6 },
         ].map((s, i) => (
-          <motion.span
+          <m.span
             key={i}
             className="absolute pointer-events-none select-none leading-none"
             style={{ left: s.x, top: s.y, fontSize: s.size, color: '#C4A96E' }}
@@ -227,14 +227,14 @@ export default function DownloadCTA({ onUnlock }) {
             aria-hidden="true"
           >
             ✦
-          </motion.span>
+          </m.span>
         ))}
       </div>
 
       <FadeInView delay={0.3} className="relative max-w-[520px] mx-auto">
         <AnimatePresence mode="wait">
           {submitted ? (
-            <motion.div
+            <m.div
               key="confirmation"
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
@@ -250,10 +250,10 @@ export default function DownloadCTA({ onUnlock }) {
               <p className="font-sans text-xs text-gray-warm/70">
                 We'll send your early access details to {email || loginEmail}
               </p>
-            </motion.div>
+            </m.div>
 
           ) : mode === 'login' ? (
-            <motion.div
+            <m.div
               key="login"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -279,7 +279,7 @@ export default function DownloadCTA({ onUnlock }) {
 
                 {/* Magic trace CTA button */}
                 <div className="relative mt-2">
-                  <motion.div
+                  <m.div
                     className="absolute -inset-5 rounded-full pointer-events-none"
                     style={{
                       background: 'radial-gradient(ellipse at 50% 50%, rgba(196,169,110,0.6) 0%, rgba(196,169,110,0.28) 45%, transparent 68%)',
@@ -288,7 +288,7 @@ export default function DownloadCTA({ onUnlock }) {
                     animate={{ opacity: [0.55, 0.92, 0.55], scale: [1, 1.06, 1] }}
                     transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
                   />
-                  <motion.div
+                  <m.div
                     className="absolute inset-0 rounded-full pointer-events-none"
                     style={{ boxShadow: '0 0 12px 3px rgba(196,169,110,0.5), 0 0 28px 8px rgba(196,169,110,0.2)' }}
                     animate={{ opacity: [0.6, 1, 0.6] }}
@@ -316,10 +316,10 @@ export default function DownloadCTA({ onUnlock }) {
               >
                 Join the waitlist instead
               </button>
-            </motion.div>
+            </m.div>
 
           ) : (
-            <motion.div
+            <m.div
               key="form"
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.35, ease: EASE }}
@@ -385,7 +385,7 @@ export default function DownloadCTA({ onUnlock }) {
 
                 {/* Magic trace CTA button */}
                 <div className="relative mt-2">
-                  <motion.div
+                  <m.div
                     className="absolute -inset-5 rounded-full pointer-events-none"
                     style={{
                       background: 'radial-gradient(ellipse at 50% 50%, rgba(196,169,110,0.6) 0%, rgba(196,169,110,0.28) 45%, transparent 68%)',
@@ -394,7 +394,7 @@ export default function DownloadCTA({ onUnlock }) {
                     animate={{ opacity: [0.55, 0.92, 0.55], scale: [1, 1.06, 1] }}
                     transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
                   />
-                  <motion.div
+                  <m.div
                     className="absolute inset-0 rounded-full pointer-events-none"
                     style={{ boxShadow: '0 0 12px 3px rgba(196,169,110,0.5), 0 0 28px 8px rgba(196,169,110,0.2)' }}
                     animate={{ opacity: [0.6, 1, 0.6] }}
@@ -424,7 +424,7 @@ export default function DownloadCTA({ onUnlock }) {
                   Already on the list? Log back in
                 </button>
               </form>
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
 

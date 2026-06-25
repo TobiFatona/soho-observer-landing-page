@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { motion, useMotionValue, useSpring, useTransform, useScroll, AnimatePresence } from 'framer-motion'
+import { m, useMotionValue, useSpring, useTransform, useScroll, AnimatePresence } from 'framer-motion'
 
 const EASE = [0.22, 1, 0.36, 1]
 const PARCHMENT = '#F5F2EF'
@@ -52,7 +52,7 @@ function GoldParticles({ lite = false }) {
   return (
     <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
       {particles.map((p) => (
-        <motion.span
+        <m.span
           key={p.id}
           className="absolute select-none leading-none"
           style={{
@@ -75,7 +75,7 @@ function GoldParticles({ lite = false }) {
           }}
         >
           ✦
-        </motion.span>
+        </m.span>
       ))}
     </div>
   )
@@ -85,7 +85,7 @@ function RippleRings({ isHovered }) {
   return (
     <div className="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden="true">
       {Array.from({ length: RIPPLE_COUNT }).map((_, i) => (
-        <motion.div
+        <m.div
           key={i}
           className="absolute rounded-full"
           style={{ border: '1px solid rgba(196,169,110,0.18)' }}
@@ -322,7 +322,7 @@ function HeroEye({ mouseX, mouseY, lite = false }) {
       {/* Ambient gold glow — the "goldish hue coming from the eye". On lite/mobile
           the radial gradient is already soft, so we drop the blur() (which is the
           expensive part to recomposite over the live canvas) and the scale pulse. */}
-      <motion.div
+      <m.div
         className="absolute pointer-events-none"
         style={{
           width: 'min(82vw, 660px)',
@@ -348,7 +348,7 @@ function HeroEye({ mouseX, mouseY, lite = false }) {
 
       {/* 3D floating eye. On lite/mobile there's no mouse, so we skip the
           perspective/preserve-3d stacking context and keep a single cheap float. */}
-      <motion.div
+      <m.div
         style={
           lite
             ? {}
@@ -375,7 +375,7 @@ function HeroEye({ mouseX, mouseY, lite = false }) {
         className="relative cursor-pointer pointer-events-auto"
       >
         {/* Drop shadow / bloom — blur dropped on lite/mobile (gradient is soft) */}
-        <motion.div
+        <m.div
           className="absolute pointer-events-none"
           style={{
             inset: -30,
@@ -394,7 +394,7 @@ function HeroEye({ mouseX, mouseY, lite = false }) {
         {/* Hover: extra bloom overlay */}
         <AnimatePresence>
           {isHovered && (
-            <motion.div
+            <m.div
               className="absolute inset-0 pointer-events-none"
               style={{
                 background: 'radial-gradient(ellipse at 50% 50%, rgba(247,224,122,0.16) 0%, transparent 65%)',
@@ -407,7 +407,7 @@ function HeroEye({ mouseX, mouseY, lite = false }) {
             />
           )}
         </AnimatePresence>
-      </motion.div>
+      </m.div>
     </div>
   )
 }
@@ -467,7 +467,7 @@ function WaitlistCTA() {
 
   return (
     <div className="relative w-full">
-      <motion.div
+      <m.div
         className="absolute -inset-4 rounded-full pointer-events-none"
         style={{
           background: 'radial-gradient(ellipse at 50% 50%, rgba(196,169,110,0.50) 0%, rgba(196,169,110,0.20) 45%, transparent 70%)',
@@ -615,7 +615,7 @@ export default function Hero() {
           On lite/mobile we drop the scroll-driven `scale`: scaling a fixed,
           full-viewport layer forces the browser to re-rasterize it every scroll
           frame. Fading opacity only (its own composited layer) stays smooth. */}
-      <motion.div
+      <m.div
         className="fixed inset-0 z-30 flex items-center justify-center pointer-events-none"
         style={
           lite
@@ -626,11 +626,11 @@ export default function Hero() {
         <div>
           <HeroEye mouseX={mouseX} mouseY={mouseY} lite={lite} />
         </div>
-      </motion.div>
+      </m.div>
 
       {/* ── Desktop foreground: words flank the eye ── */}
       <div className="hidden lg:block absolute inset-0 z-20 pointer-events-none">
-        <motion.h1
+        <m.h1
           {...fadeUp(0.1)}
           className="absolute font-condensed font-semibold tracking-tight leading-[0.9]"
           style={{ top: '18%', left: '13vw', fontSize: 'clamp(44px, 6.5vw, 96px)' }}
@@ -644,9 +644,9 @@ export default function Hero() {
             <span className="block">From Inspiration</span>
             <span className="block">to Discovery</span>
           </SpotlightText>
-        </motion.h1>
+        </m.h1>
 
-        <motion.p
+        <m.p
           {...fadeUp(0.4)}
           className="absolute font-sans"
           style={{ top: '46%', left: '13vw', maxWidth: 340, fontSize: 15, lineHeight: 1.6 }}
@@ -659,10 +659,10 @@ export default function Hero() {
           >
             {SUBHEAD}
           </SpotlightText>
-        </motion.p>
+        </m.p>
 
         {/* Bottom right — above CTA cluster */}
-        <motion.h2
+        <m.h2
           {...fadeUp(0.28)}
           className="absolute font-condensed font-semibold tracking-tight leading-[0.9] text-right"
           style={{ bottom: '28%', right: '13vw', fontSize: 'clamp(36px, 5.5vw, 80px)', maxWidth: '42vw' }}
@@ -676,7 +676,7 @@ export default function Hero() {
             <span className="block">Unlock your fashion</span>
             <span className="block">potential</span>
           </SpotlightText>
-        </motion.h2>
+        </m.h2>
 
         {/* CTA cluster — outer div handles centering so framer-motion y-animation
             doesn't fight CSS translateX(-50%). Width is shared by both children. */}
@@ -684,14 +684,14 @@ export default function Hero() {
           className="absolute pointer-events-none"
           style={{ bottom: '12%', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}
         >
-          <motion.div
+          <m.div
             {...fadeUp(0.55)}
             className="flex flex-col items-center gap-3 pointer-events-auto"
             style={{ width: 240 }}
           >
             <WaitlistCTA />
             <AppStoreBadge />
-          </motion.div>
+          </m.div>
         </div>
       </div>
 
@@ -699,7 +699,7 @@ export default function Hero() {
       <div className="lg:hidden absolute inset-0 z-20 pointer-events-none">
 
         {/* H1 — top-left, above the eye */}
-        <motion.h1
+        <m.h1
           {...fadeUp(0.1)}
           className="absolute font-condensed font-semibold tracking-tight leading-[0.95]"
           style={{ top: '17vh', left: '6vw', maxWidth: '55vw', fontSize: 'clamp(32px, 8.5vw, 50px)' }}
@@ -713,10 +713,10 @@ export default function Hero() {
             <span className="block">From Inspiration</span>
             <span className="block">to Discovery</span>
           </SpotlightText>
-        </motion.h1>
+        </m.h1>
 
         {/* H2 — bottom-right, below the eye, mirrors desktop */}
-        <motion.h2
+        <m.h2
           {...fadeUp(0.28)}
           className="absolute font-condensed font-semibold tracking-tight leading-[0.95] text-right"
           style={{ bottom: '30vh', right: '6vw', maxWidth: '55vw', fontSize: 'clamp(28px, 8vw, 46px)' }}
@@ -730,20 +730,20 @@ export default function Hero() {
             <span className="block">Unlock your fashion</span>
             <span className="block">potential</span>
           </SpotlightText>
-        </motion.h2>
+        </m.h2>
 
         {/* CTAs — bottom-centre */}
         <div
           className="absolute pointer-events-none flex justify-center"
           style={{ bottom: '8vh', left: 0, right: 0 }}
         >
-          <motion.div
+          <m.div
             {...fadeUp(0.55)}
             className="flex flex-col items-center gap-3 pointer-events-auto w-full max-w-[240px]"
           >
             <WaitlistCTA />
             <AppStoreBadge />
-          </motion.div>
+          </m.div>
         </div>
 
       </div>

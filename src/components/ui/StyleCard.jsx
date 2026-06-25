@@ -1,8 +1,8 @@
-import { motion } from 'framer-motion'
+import { m } from 'framer-motion'
 
 export default function StyleCard({ name, description, gradient, tall = false, className = '' }) {
   return (
-    <motion.div
+    <m.div
       className={`relative rounded-2xl overflow-hidden bg-gradient-to-b ${gradient} ${tall ? 'h-[500px]' : 'h-[238px]'} ${className} group cursor-default`}
       whileHover={{ scale: 1.01 }}
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
@@ -23,6 +23,6 @@ export default function StyleCard({ name, description, gradient, tall = false, c
       <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
         <span className="label-editorial text-parchment/80 text-[0.55rem] tracking-widest">VIEW</span>
       </div>
-    </motion.div>
+    </m.div>
   )
 }

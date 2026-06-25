@@ -1,8 +1,8 @@
-import { motion } from 'framer-motion'
+import { m } from 'framer-motion'
 
 export default function RevealLine({ className = '', vertical = false }) {
   return (
-    <motion.span
+    <m.span
       className={`block bg-gold-500 ${vertical ? 'w-px' : 'h-px'} ${className}`}
       initial={{ [vertical ? 'scaleY' : 'scaleX']: 0 }}
       whileInView={{ [vertical ? 'scaleY' : 'scaleX']: 1 }}

@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+import { m } from 'framer-motion'
 
 const SPARKLES = [
   { x: '8%',  y: '-65%', delay: 0,    size: 7 },
@@ -12,7 +12,7 @@ export default function GoldSparkle({ children, className = '', style = {} }) {
     <span className={`relative inline-block ${className}`} style={style}>
       <span className="gold-shimmer">{children}</span>
       {SPARKLES.map((s, i) => (
-        <motion.span
+        <m.span
           key={i}
           className="absolute pointer-events-none select-none leading-none"
           style={{ left: s.x, top: s.y, fontSize: s.size, color: '#C4A96E' }}
@@ -21,7 +21,7 @@ export default function GoldSparkle({ children, className = '', style = {} }) {
           aria-hidden="true"
         >
           ✦
-        </motion.span>
+        </m.span>
       ))}
     </span>
   )

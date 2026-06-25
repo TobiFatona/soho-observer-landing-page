@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+import { m } from 'framer-motion'
 
 const EASE = [0.22, 1, 0.36, 1]
 
@@ -13,7 +13,7 @@ const variants = {
 
 export default function FadeInView({ children, delay = 0, className = '' }) {
   return (
-    <motion.div
+    <m.div
       className={className}
       variants={variants}
       initial="hidden"
@@ -22,6 +22,6 @@ export default function FadeInView({ children, delay = 0, className = '' }) {
       transition={{ delay }}
     >
       {children}
-    </motion.div>
+    </m.div>
   )
 }

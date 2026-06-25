@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+import { m } from 'framer-motion'
 import SectionLabel from '@/components/ui/SectionLabel'
 import FadeInView from '@/components/motion/FadeInView'
 import PhoneMockup from '@/components/ui/PhoneMockup'
@@ -59,7 +59,7 @@ export default function WhatWeInclude() {
         {/* Horizontal scroll feature cards */}
         <div className="-mx-[8vw] px-[6vw] overflow-x-auto snap-x snap-mandatory scrollbar-hide flex gap-5 pb-4">
           {features.map((f, i) => (
-            <motion.div
+            <m.div
               key={f.number}
               className="snap-center flex-shrink-0 w-[88vw] bg-white rounded-2xl p-6"
               initial={{ opacity: 0, y: 16 }}
@@ -81,7 +81,7 @@ export default function WhatWeInclude() {
               </h3>
               <span className="block w-8 h-px bg-gold-500 mb-4" />
               <p className="font-sans text-sm text-gray-warm leading-relaxed">{f.body}</p>
-            </motion.div>
+            </m.div>
           ))}
         </div>
 
@@ -125,7 +125,7 @@ export default function WhatWeInclude() {
 
           <div className="flex flex-col">
             {features.map((f, i) => (
-              <motion.div
+              <m.div
                 key={f.number}
                 className="flex gap-6 py-7 border-t border-gold-200"
                 initial={{ opacity: 0, x: 20 }}
@@ -148,7 +148,7 @@ export default function WhatWeInclude() {
                   </h3>
                   <p className="font-sans text-sm text-gray-warm leading-relaxed">{f.body}</p>
                 </div>
-              </motion.div>
+              </m.div>
             ))}
             <div className="border-t border-gold-200" />
           </div>

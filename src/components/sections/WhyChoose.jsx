@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+import { m } from 'framer-motion'
 import SectionLabel from '@/components/ui/SectionLabel'
 import FadeInView from '@/components/motion/FadeInView'
 import GoldSparkle from '@/components/ui/GoldSparkle'
@@ -76,7 +76,7 @@ export default function WhyChoose() {
       {/* Mobile: snap scroll strip */}
       <div className="md:hidden -mx-[8vw] px-[6vw] overflow-x-auto snap-x snap-mandatory scrollbar-hide flex gap-5 pb-4">
         {reasons.map((r, i) => (
-          <motion.div
+          <m.div
             key={r.title}
             className="snap-center flex-shrink-0 w-[88vw] bg-parchment rounded-2xl p-6 flex flex-col"
             style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}
@@ -98,14 +98,14 @@ export default function WhyChoose() {
               {r.title}
             </h3>
             <p className="font-sans text-sm text-gray-warm leading-relaxed">{r.body}</p>
-          </motion.div>
+          </m.div>
         ))}
       </div>
 
       {/* Desktop: 3-column grid */}
       <div className="hidden md:grid max-w-5xl mx-auto grid-cols-3 gap-5">
         {reasons.map((r, i) => (
-          <motion.div
+          <m.div
             key={r.title}
             className="bg-parchment rounded-2xl p-6 lg:p-8 flex flex-col"
             style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}
@@ -127,7 +127,7 @@ export default function WhyChoose() {
               {r.title}
             </h3>
             <p className="font-sans text-sm text-gray-warm leading-relaxed">{r.body}</p>
-          </motion.div>
+          </m.div>
         ))}
       </div>
     </section>

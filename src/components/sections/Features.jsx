@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion'
 import SectionLabel from '@/components/ui/SectionLabel'
 import RevealLine from '@/components/motion/RevealLine'
 import FadeInView from '@/components/motion/FadeInView'

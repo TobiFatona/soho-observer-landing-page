@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { m, AnimatePresence } from 'framer-motion'
 import GoldEyeLogo from '@/components/ui/GoldEyeLogo'
 
 const EASE = [0.22, 1, 0.36, 1]
@@ -179,7 +179,7 @@ export default function Navbar() {
       <div className="fixed top-0 left-0 right-0 z-50 flex flex-col items-center pointer-events-none">
 
         {/* Inner pill: the actual navbar */}
-        <motion.header
+        <m.header
           className="pointer-events-auto flex items-center justify-between w-full"
           style={{ border: '1px solid transparent' }}
           animate={isDesktop ? desktopStyle : mobileStyle}
@@ -216,7 +216,7 @@ export default function Navbar() {
               Log in
             </button>
           <div className="relative">
-            <motion.div
+            <m.div
               className="absolute -inset-3 rounded-full pointer-events-none"
               style={{
                 background: 'radial-gradient(ellipse at 50% 50%, rgba(196,169,110,0.55) 0%, rgba(196,169,110,0.24) 45%, transparent 68%)',
@@ -225,7 +225,7 @@ export default function Navbar() {
               animate={{ opacity: [0.5, 0.88, 0.5], scale: [1, 1.05, 1] }}
               transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
             />
-            <motion.div
+            <m.div
               className="absolute inset-0 rounded-full pointer-events-none"
               style={{ boxShadow: '0 0 9px 2px rgba(196,169,110,0.48), 0 0 20px 5px rgba(196,169,110,0.18)' }}
               animate={{ opacity: [0.55, 1, 0.55] }}
@@ -254,31 +254,31 @@ export default function Navbar() {
             aria-label={menuOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={menuOpen}
           >
-            <motion.span
+            <m.span
               className={`block h-px ${solidActive && !onDark ? 'bg-charcoal' : 'bg-parchment'}`}
               style={{ width: 22 }}
               animate={menuOpen ? { rotate: 45, y: 6 } : { rotate: 0, y: 0 }}
               transition={{ duration: 0.28, ease: EASE }}
             />
-            <motion.span
+            <m.span
               className={`block h-px ${solidActive && !onDark ? 'bg-charcoal' : 'bg-parchment'}`}
               style={{ width: 22 }}
               animate={menuOpen ? { opacity: 0, x: -4 } : { opacity: 1, x: 0 }}
               transition={{ duration: 0.2 }}
             />
-            <motion.span
+            <m.span
               className={`block h-px ${solidActive && !onDark ? 'bg-charcoal' : 'bg-parchment'}`}
               style={{ width: 22 }}
               animate={menuOpen ? { rotate: -45, y: -6 } : { rotate: 0, y: 0 }}
               transition={{ duration: 0.28, ease: EASE }}
             />
           </button>
-        </motion.header>
+        </m.header>
 
         {/* Mobile dropdown */}
         <AnimatePresence>
           {menuOpen && (
-            <motion.nav
+            <m.nav
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
@@ -296,7 +296,7 @@ export default function Navbar() {
               }}
             >
               {navLinks.map(({ label, href }, i) => (
-                <motion.a
+                <m.a
                   key={label}
                   href={href}
                   onClick={() => setMenuOpen(false)}
@@ -310,17 +310,17 @@ export default function Navbar() {
                   transition={{ duration: 0.3, ease: EASE, delay: i * 0.05 }}
                 >
                   {label}
-                </motion.a>
+                </m.a>
               ))}
 
               {/* Magic trace CTA */}
-              <motion.div
+              <m.div
                 className="relative mt-6 w-full max-w-xs"
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, ease: EASE, delay: navLinks.length * 0.05 }}
               >
-                <motion.div
+                <m.div
                   className="absolute -inset-3 rounded-full pointer-events-none"
                   style={{
                     background: 'radial-gradient(ellipse at 50% 50%, rgba(196,169,110,0.55) 0%, rgba(196,169,110,0.24) 45%, transparent 68%)',
@@ -329,7 +329,7 @@ export default function Navbar() {
                   animate={{ opacity: [0.5, 0.88, 0.5], scale: [1, 1.05, 1] }}
                   transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
                 />
-                <motion.div
+                <m.div
                   className="absolute inset-0 rounded-full pointer-events-none"
                   style={{ boxShadow: '0 0 9px 2px rgba(196,169,110,0.48), 0 0 20px 5px rgba(196,169,110,0.18)' }}
                   animate={{ opacity: [0.55, 1, 0.55] }}
@@ -351,9 +351,9 @@ export default function Navbar() {
                     Join the Waitlist
                   </GlowAnchor>
                 </div>
-              </motion.div>
+              </m.div>
 
-              <motion.button
+              <m.button
                 onClick={() => {
                   setMenuOpen(false)
                   window.dispatchEvent(new CustomEvent('soho:switch-to-login'))
@@ -367,8 +367,8 @@ export default function Navbar() {
                 transition={{ duration: 0.3, ease: EASE, delay: (navLinks.length + 1) * 0.05 }}
               >
                 Already on the list? Log in
-              </motion.button>
-            </motion.nav>
+              </m.button>
+            </m.nav>
           )}
         </AnimatePresence>
       </div>

@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { m, AnimatePresence } from 'framer-motion'
 import SectionLabel from '@/components/ui/SectionLabel'
 import PhoneMockup from '@/components/ui/PhoneMockup'
 import FadeInView from '@/components/motion/FadeInView'
@@ -97,7 +97,7 @@ export default function Screenshots({ locked = false }) {
 
       {/* Gated carousel */}
       <div className="relative">
-        <motion.div
+        <m.div
           animate={{ filter: locked ? 'blur(12px)' : 'blur(0px)' }}
           transition={{ duration: 0.9, ease: EASE }}
           style={{ pointerEvents: locked ? 'none' : 'auto' }}
@@ -110,7 +110,7 @@ export default function Screenshots({ locked = false }) {
           style={{ height: 560, perspective: '1200px', perspectiveOrigin: '50% 50%' }}
         >
           {/* Stage: zero-size centered container with preserve-3d */}
-          <motion.div
+          <m.div
             style={{
               position: 'absolute',
               left: '50%',
@@ -157,7 +157,7 @@ export default function Screenshots({ locked = false }) {
                 </p>
               </div>
             ))}
-          </motion.div>
+          </m.div>
 
           {/* Prev arrow */}
           <button
@@ -233,12 +233,12 @@ export default function Screenshots({ locked = false }) {
         </div>
       </div>
 
-        </motion.div>
+        </m.div>
 
         {/* Lock overlay */}
         <AnimatePresence>
           {locked && (
-            <motion.div
+            <m.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
@@ -264,7 +264,7 @@ export default function Screenshots({ locked = false }) {
               >
                 Join Waitlist →
               </GlowLink>
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
       </div>{/* end gated carousel */}

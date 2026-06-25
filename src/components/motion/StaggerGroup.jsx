@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+import { m } from 'framer-motion'
 
 const container = {
   hidden: {},
@@ -18,7 +18,7 @@ const item = {
 
 export function StaggerGroup({ children, className = '' }) {
   return (
-    <motion.div
+    <m.div
       className={className}
       variants={container}
       initial="hidden"
@@ -26,14 +26,14 @@ export function StaggerGroup({ children, className = '' }) {
       viewport={{ once: true, margin: '-80px' }}
     >
       {children}
-    </motion.div>
+    </m.div>
   )
 }
 
 export function StaggerItem({ children, className = '' }) {
   return (
-    <motion.div className={className} variants={item}>
+    <m.div className={className} variants={item}>
       {children}
-    </motion.div>
+    </m.div>
   )
 }
