@@ -374,6 +374,7 @@ function WaitlistCTA() {
         className="relative rounded-full overflow-hidden w-full"
         style={{ padding: 2, background: 'rgba(196,169,110,0.45)' }}
       >
+        <div className="magic-trace absolute inset-0 pointer-events-none" aria-hidden="true" />
         <a
           ref={anchorRef}
           href="#waitlist"

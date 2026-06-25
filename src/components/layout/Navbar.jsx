@@ -235,6 +235,7 @@ export default function Navbar() {
               className="relative rounded-full overflow-hidden"
               style={{ padding: '2px', background: 'rgba(196,169,110,0.38)' }}
             >
+              <div className="magic-trace absolute inset-0 pointer-events-none" aria-hidden="true" />
               <GlowAnchor
                 href="#waitlist"
                 onClick={() => window.dispatchEvent(new CustomEvent('soho:switch-to-join'))}
@@ -338,6 +339,7 @@ export default function Navbar() {
                   className="relative rounded-full overflow-hidden"
                   style={{ padding: '2px', background: 'rgba(196,169,110,0.38)' }}
                 >
+                  <div className="magic-trace absolute inset-0 pointer-events-none" aria-hidden="true" />
                   <GlowAnchor
                     href="#waitlist"
                     onClick={() => {
